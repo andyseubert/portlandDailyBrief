@@ -1285,25 +1285,15 @@ def render_week_glance() -> str:
             f'<section class="week">{"".join(cells)}</section>')
 
 
-# Homepage hero override: feature a specific page as the lead story instead of
-# the daily brief, active from "date" through "until" (inclusive; "until"
-# defaults to "date" for the original one-day behavior) — the first rebuild
-# after the window (e.g. the 6 AM brief run) auto-reverts to the brief.
-# Set to None to disable.
+# One-day homepage hero override: feature a specific page as the lead story
+# instead of the daily brief, ONLY on the given date. THE RULE (user,
+# 2026-08-09): a manual override lasts exactly one day — the next morning's
+# rebuild (the 6 AM brief run) takes the hero back automatically. No
+# multi-day windows; re-set the override each day if it's genuinely wanted
+# again. Set to None to disable.
 # Sources: "report" / "indepth" (validated against that section's latest item
 # by slug) or "custom" (explicit href + title, any page on the site).
-FEATURED_REPORT_OVERRIDE = {
-    "source": "custom",
-    "href": "talk-to-us.html",
-    "title": "There are more ways than ever to follow TDB — and talk back",
-    "date": "2026-08-08",
-    "until": "2026-08-09",
-    "kicker": "From the Editor",
-    "cta": "See all the ways to reach us",
-    "dek": ("TDB is now on Bluesky and X, comments are live on every story, and "
-            "a real person answers the email. A quick tour of where to find us — "
-            "and how to talk back."),
-}
+FEATURED_REPORT_OVERRIDE = None
 
 
 def render_homepage(posts: list[dict],
@@ -1337,9 +1327,7 @@ def render_homepage(posts: list[dict],
     # current latest_report; otherwise the daily brief leads as usual.
     hero_report = None
     if FEATURED_REPORT_OVERRIDE:
-        _start = FEATURED_REPORT_OVERRIDE.get("date", "")
-        _until = FEATURED_REPORT_OVERRIDE.get("until", _start)
-        if _start and _start <= today.strftime("%Y-%m-%d") <= _until:
+        if FEATURED_REPORT_OVERRIDE.get("date") == today.strftime("%Y-%m-%d"):
             _src = FEATURED_REPORT_OVERRIDE.get("source", "report")
             if _src == "custom":
                 hero_report = {"href": FEATURED_REPORT_OVERRIDE["href"],
