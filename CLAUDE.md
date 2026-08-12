@@ -24,6 +24,7 @@ CLAUDE.md is the index. Detail lives in these; **when you learn something durabl
 | `CHARACTER-ANIMATION-STACK.md` | How to animate the mascot — why generative video is wrong for cel art (HeyGen bake-off data), the three build tiers, RTX 5080 / LoRA + synthetic-data bootstrap, Character Animator vs Hedra, and the "could this be a product" note |
 | `SHORT-FORM-VIDEO.md` | Platform automation map + DIY publish-adapter plan |
 | `SOCIAL-AUTOPOST.md` | Auto-posting feasibility per platform; Facebook strategy |
+| `X-PLAYBOOK.md` | X brand account (manual posting): the Pirate Wires thread pattern, link-penalty mechanics, profile kit, thread template |
 | `MARKETING.md` | Two-brand split, the distribution loop, content mix, instrumentation TODOs |
 | `IG-BTS-STRATEGY.md` | IG behind-the-scenes content: the "outcome + accountable human, never the tooling" principle, format buckets, founder-post signal, variable-isolation test |
 | `ROADMAP.md` | **Everything queued and gated** — Responsiveness, coverage expansion, structured-data layers, Data Center Watch, Tucson en Breve, off-the-laptop migration, Spotify |
@@ -44,7 +45,7 @@ These are the ones that cost something when forgotten:
 - **No fabrication in reader-facing output, ever.** Verify every factual claim before it ships. Highest-scrutiny category is pop-culture/celebrity clues and any card or short. See the `feedback_ai_content_quality_bar` memory.
 - **Derive, don't ask a model.** Every data-integrity bug found so far was the pipeline asking a model for something it should have computed — a list length, a lookup-table value, an editorial judgment about a meeting with no agenda. The model answers plausibly each time. See `feedback_verify_dont_delegate`.
 - **A name that entered via transcript is a hypothesis, not a fact,** until an external source confirms it. See `NAMES-BIBLE.md`.
-- **Cite our own reporting first.** On any morning after we publish a news report, check `news-reports/` before crediting an outside outlet for a story we broke. See the self-citation gap in `PIPELINE.md`.
+- **Cite our own reporting first.** On any morning after we publish a news report, the brief must credit us — not an outside outlet — for a story we broke. Automated in the brief since 2026-08-12 (`build_own_reports_block()` injects recent `news-reports/` into the synthesis prompt); still a manual rule on every other surface (newsletter, social, cards). History in `PIPELINE.md`.
 - **Don't start new section-scale features mid-build.** Capture in `ROADMAP.md` with a gate, then drop it. See `feedback_resist_feature_creep`.
 - **Two-brand split:** reader-facing surfaces lead with the outcome ("The Tucson news you'd otherwise miss"); the AI/tooling story belongs on About, LinkedIn, and industry conversations.
 
@@ -165,7 +166,7 @@ Visual language is **warm-organic Southwest editorial**, shipped 2026-05-11. The
 
 **Masthead tagline: "The Tucson news you'd otherwise miss, by Nicholas De Leon."** Baked into every published page — changing it means editing `generate_post.py` **and** string-replacing across all published HTML (use Python, not sed — `&` entities break sed). Kicker reads "From the Old Pueblo".
 
-**Footer links:** About, Apple Podcasts, YouTube, Facebook, Instagram, Bluesky, LinkedIn, Email. Facebook (`facebook.com/tucsondailybrief`) + Instagram (`instagram.com/tucsondailybrief`) added 2026-07-19, Bluesky (`bsky.app/profile/tucsondailybrief.com`, the custom-domain brand handle) added 2026-08-04 — these are **brand accounts**, so linking them is consistent with the standing preference that *personal* social not be connected to the site. X (and, until the brand account existed, Bluesky) was removed 2026-05-15 for that personal-social reason; X stays off. Adding/removing a footer link means editing `footer_html()` in `generate_post.py` **and** sweeping it into already-published HTML (Python, not sed — match the adjacent-anchor pair so only the footer is touched; `redesign-preview.html` has no live footer and is skipped).
+**Footer links:** About, Apple Podcasts, YouTube, Facebook, Instagram, Bluesky, X, LinkedIn, Email. Facebook (`facebook.com/tucsondailybrief`) + Instagram (`instagram.com/tucsondailybrief`) added 2026-07-19, Bluesky (`bsky.app/profile/tucsondailybrief.com`, the custom-domain brand handle) added 2026-08-04 — these are **brand accounts**, so linking them is consistent with the standing preference that *personal* social not be connected to the site. X (and, until the brand account existed, Bluesky) was removed 2026-05-15 for that personal-social reason; the X **brand** account (`x.com/tusdailybrief` — 15-char handle limit, see X-PLAYBOOK.md) went into the footer 2026-08-08 at the user's request. Adding/removing a footer link means editing `footer_html()` in `generate_post.py` **and** sweeping it into already-published HTML (Python, not sed — match the adjacent-anchor pair so only the footer is touched; `redesign-preview.html` has no live footer and is skipped).
 
 **Analytics:** GA4 via `gtag.js`, ID `G-MEYSB9GYF2`, site-wide via `ANALYTICS_HTML`.
 

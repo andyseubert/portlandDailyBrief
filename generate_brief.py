@@ -411,6 +411,47 @@ def build_items_block(by_source):
     return "\n".join(parts)
 
 
+OWN_REPORTS_DIR = Path(__file__).resolve().parent / "news-reports"
+
+
+def build_own_reports_block(brief_date):
+    """Recent Tucson Daily Brief originals (news-reports/), so the synthesis
+    can cite our own coverage instead of crediting an outside outlet for a
+    story we broke — closes the self-citation gap (PIPELINE.md, added
+    2026-08-12 after both bake-off arms credited KVOA with the data-center
+    moratorium story our live reporter published the night before).
+
+    Dated by the article:published_time meta the SEO layer stamps into each
+    report (file mtime lies: site-wide HTML sweeps rewrite published pages).
+    Window = published on the brief date or the day before, so a report lands
+    in exactly one morning's prompt: an evening report enters the next
+    morning's brief and is excluded the morning after.
+    """
+    if not OWN_REPORTS_DIR.is_dir():
+        return ""
+    out = []
+    for p in sorted(OWN_REPORTS_DIR.glob("*.html")):
+        head = p.read_text(errors="replace")[:8000]
+        m = re.search(r'article:published_time" content="(\d{4}-\d{2}-\d{2})"', head)
+        if not m:
+            continue
+        pub = datetime.strptime(m.group(1), "%Y-%m-%d").date()
+        if not 0 <= (brief_date - pub).days <= 1:
+            continue
+        title = re.search(r'<meta property="og:title" content="([^"]*)"', head)
+        desc = re.search(r'<meta property="og:description" content="([^"]*)"', head)
+        url = re.search(r'<link rel="canonical" href="([^"]*)"', head)
+        if not (title and url):
+            continue
+        t = html.unescape(title.group(1)).removesuffix(" — Tucson Daily Brief")
+        out.append(f"- TITLE: {t}")
+        if desc:
+            out.append(f"  SUMMARY: {html.unescape(desc.group(1))}")
+        out.append(f"  LINK: {url.group(1)}")
+        out.append(f"  PUBLISHED: {pub.isoformat()}")
+    return "\n".join(out)
+
+
 SYNTHESIS_PROMPT = """\
 You are the editor of the Tucson Daily Brief, a daily hyper-local news briefing \
 for the Tucson / Pima County area. Today is {today_human} (America/Phoenix).
@@ -553,6 +594,17 @@ announcements; outlet-reported items are cited to the outlet.
 ATTRIBUTION: every story ends with 📰 and a markdown link to the DIRECT article URL \
 from its LINK field: `📰 [Source Name](url)`. Multi-source: `📰 [A](url1), [B](url2)`. \
 If an item's LINK is "(none)", cite the source name without a link. Never link to a homepage.
+
+SELF-CITATION: the OUR OWN REPORTING block lists stories Tucson Daily Brief itself \
+published in the last day — original reporting, not aggregation. When a news item \
+covers the same story, our report outranks the outside coverage: prefer our report's \
+framing and facts, and cite it FIRST as `📰 [Tucson Daily Brief](link)`, keeping an \
+outside link after it only if it adds facts our report lacks. Use only what the \
+TITLE/SUMMARY actually say — do not invent detail beyond them.
+
+=== OUR OWN REPORTING (Tucson Daily Brief originals) ===
+
+{own_reports_block}
 
 === WEATHER ===
 {weather_block}
@@ -862,6 +914,15 @@ def main():
         schools_block = ""
         print(f"  WARN  school news unavailable: {e}", file=sys.stderr)
 
+    # Our own published reporting — same non-fatal posture as the blocks above.
+    try:
+        own_reports_block = build_own_reports_block(brief_date)
+        n_own = own_reports_block.count("- TITLE:")
+        print(f"  ok    Own reporting: {n_own} report(s) in window", file=sys.stderr)
+    except Exception as e:
+        own_reports_block = ""
+        print(f"  WARN  own-reports block unavailable: {e}", file=sys.stderr)
+
     total_items = sum(c for _, c in fetched)
     print(f"Total items in window: {total_items} across "
           f"{sum(1 for _, c in fetched if c)} source(s) with content", file=sys.stderr)
@@ -869,6 +930,7 @@ def main():
     if args.dry_run:
         print("\n=== WEATHER ===\n" + weather_block)
         print("\n=== EDITOR TIPS ===\n" + tips_block)
+        print("\n=== OWN REPORTING ===\n" + (own_reports_block or "(none)"))
         print("\n=== SCHOOLS ===\n" + (schools_block or "(none)"))
         print("\n=== OFFICIALS ===\n" + (officials_block or "(none)"))
         print("\n=== ITEMS ===\n" + items_block)
@@ -891,6 +953,7 @@ def main():
         items_block=items_block,
         schools_block=schools_block or "(none in window — omit the 🎓 section)",
         officials_block=officials_block or "(none in window — omit the 📢 section)",
+        own_reports_block=own_reports_block or "(none in window)",
     )
     print(f"Prompt: ~{len(prompt):,} chars (~{len(prompt)//4:,} tokens). Calling Claude...", file=sys.stderr)
 
@@ -907,8 +970,10 @@ def main():
         # schools_block belongs here for the same reason officials_block does: a
         # name that reached the brief only via a district announcement IS
         # grounded, and leaving the block out would flag it as fabricated.
+        # own_reports_block likewise: a name grounded only in OUR report (e.g.
+        # a supervisor quoted in last night's meeting story) must not flag.
         sources="\n".join([items_block, weather_block, tips_block,
-                           schools_block, officials_block]),
+                           schools_block, officials_block, own_reports_block]),
         date_str=brief_date.isoformat(),
     )
 
