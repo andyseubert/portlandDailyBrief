@@ -24,17 +24,19 @@ echo "=== Model A/B run: $(date) ==="
 #   Sol     -> challenger, files only
 #   Terra   -> challenger, files only
 #   Flash   -> challenger, files only (deepseek-v4-flash, added 2026-07-31)
+#   Grok    -> challenger, files only (grok-4.6, added 2026-08-12 launch day)
 #
 # --no-telegram is deliberate: the point is to read real briefs side by
 # side in brief-bake-off/, and three briefs every morning would get the alert
 # channel muted. Luna was dropped 2026-07-30 (buried a live Extreme Heat
 # Warning last on the morning it took effect).
 #
-# Cost ~$0.32/day (~$9.40/mo) — Flash adds under a cent. Named arms are
+# Cost ~$0.40/day (~$12/mo) — Flash adds under a cent, Grok ~$0.08 (est.
+# 2026-08-12, remeasure from ab.jsonl after a few runs). Named arms are
 # explicit on purpose: leaving this bare would run every challenger and
 # multiply that. NOTE the script exits before ANY arm runs if a named arm's
 # key is missing, so don't add an arm here until its key is in
 # ~/.config/environment.d/ (cron does not read ~/.bashrc).
 "$SCRIPT_DIR/.venv/bin/python3" "$SCRIPT_DIR/brief_model_ab.py" \
-    --models sol,terra,flash --no-telegram
+    --models sol,terra,flash,grok --no-telegram
 echo "=== Done: $(date) ==="

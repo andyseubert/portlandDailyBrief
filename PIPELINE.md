@@ -349,3 +349,43 @@ prompt actually said. Fixed 2026-07-31 by showing real output instead of
 placeholders, plus an explicit "no brackets" line; verified live on both flash
 and sol. **General lesson: a challenger rendering the prompt literally is a
 prompt bug, not a model defect — check the instruction before blaming the arm.**
+
+### Grok 4.6 arm (added 2026-08-12, launch day)
+
+SpaceXAI shipped **Grok 4.6** the morning of 2026-08-12 (`grok-4.6`, verified
+against `api.x.ai/v1/models` the same day; AA Intelligence Index 61 — ties
+GPT-5.6 Sol, one behind Fable 5, two behind Opus 5). Wired as the `grok` arm in
+**both** `brief_model_ab.py` and `newsletter_model_ab.py` (the user wants it
+read on both surfaces); key in `~/.config/environment.d/xai.conf`
+(`XAI_API_KEY`). In the daily cron set as of 2026-08-12
+(`--models sol,terra,flash,grok`).
+
+| arm | model | in $/MTok | out $/MTok | measured $/run | est. $/mo |
+|---|---|---:|---:|---:|---:|
+| `grok` | grok-4.6 | 2.00 | 6.00 | **$0.106** (n=1) | ~$3.20 |
+
+Notes that cost something when forgotten:
+
+- **xAI reports reasoning tokens DISJOINT from `completion_tokens`** — unlike
+  OpenAI and DeepSeek, where `reasoning_tokens` is a subset. First run measured
+  11,331 reasoning vs 2,221 completion; pricing `completion_tokens` alone
+  undercounts ~2x ($0.054 vs the true $0.106). `PROVIDERS["xai"]` carries
+  `reasoning_extra=True` and `run_chat()` adds reasoning into `out` for such
+  providers. **If another vendor is ever added, measure which convention its
+  usage block follows before trusting the first cost figure.**
+- It's a thinking model with no off switch observed, so it carries the
+  DeepSeek-style `max_tokens=48000` headroom rather than the shared 16K.
+- Cache-hit input is $0.50/MTok — only a 4x discount, so per the DeepSeek-era
+  rule it is NOT priced separately (the daily prompt never repeats anyway).
+- **First-run editorial signal (n=1, ad-hoc ~10:20 AM prompt, not the 6:05
+  one):** 844-919 words across two runs, ~15 headlines, ~140-170s. Both gate
+  UNGROUNDED findings were **gate false positives**, not fabrications: "Officials
+  Are Saying" (a section header) and "Tucson Unified School District's" — the
+  possessive with a curly apostrophe failed the exact-string lookup even though
+  "Tucson Unified School District classrooms" sits verbatim in the sources.
+  **Gate-tuning queue: normalize possessives ('s / ’s) before lookup.**
+- The newsletter arm runs whatever `CHALLENGERS` holds (no cron — manual
+  Saturday via `run_newsletter.sh` step 3), so grok joins the next send's
+  bake-off automatically. `newsletter_model_ab.py`'s `run_chat()` now honors
+  per-spec `max_tokens` (it silently ignored it before — same class of bug as
+  the shared-16K one Flash surfaced).

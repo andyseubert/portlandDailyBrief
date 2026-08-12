@@ -82,6 +82,14 @@ PROVIDERS = {
                       env="ANTHROPIC_API_KEY", token_param="max_tokens"),
     "deepseek": dict(url="https://api.deepseek.com/v1/chat/completions",
                      env="DEEPSEEK_API_KEY", token_param="max_tokens"),
+    # reasoning_extra: xAI reports usage.completion_tokens_details.reasoning_tokens
+    # DISJOINT from completion_tokens (measured 2026-08-12: 11,331 reasoning vs
+    # 2,221 completion on the first grok-4.6 run) and bills reasoning as output.
+    # OpenAI and DeepSeek report reasoning as a SUBSET of completion_tokens, so
+    # only xAI gets the flag — without it the grok cost undercounts ~2x.
+    "xai": dict(url="https://api.x.ai/v1/chat/completions",
+                env="XAI_API_KEY", token_param="max_tokens",
+                reasoning_extra=True),
 }
 
 # $/MTok (input, output). VERIFIED 2026-07-30 against
@@ -118,6 +126,16 @@ CHALLENGERS = {
                    price=(0.14, 0.28), cache_price=0.0028, max_tokens=48000),
     "dspro":  dict(provider="deepseek", model="deepseek-v4-pro",
                    price=(0.435, 0.87), cache_price=0.003625, max_tokens=48000),
+    # Grok 4.6, added 2026-08-12 (launch day). Model id verified against
+    # api.x.ai/v1/models the same day; prices from docs.x.ai + Artificial
+    # Analysis: $2/$6, cache hits $0.50/MTok. The cache discount is only 4x —
+    # not priced separately, same rule as OpenAI above (and the daily prompt
+    # never repeats anyway). Reasoning model: thinking bills as output and
+    # counts against max_tokens, so it gets DeepSeek-style headroom instead of
+    # the shared 16K. xAI speaks the OpenAI chat wire format (reasoning under
+    # completion_tokens_details.reasoning_tokens), so run_chat handles it.
+    "grok":   dict(provider="xai", model="grok-4.6",
+                   price=(2.00, 6.00), max_tokens=48000),
 }
 CHEAP = ["luna", "terra", "flash"]
 # The champion is the *published* brief (generate_brief.py CLAUDE_MODEL), not a
@@ -164,15 +182,19 @@ def run_chat(spec, prompt, keys):
         "Authorization": f"Bearer {keys[spec['provider']]}"})
     choice = (data.get("choices") or [{}])[0]
     u = data.get("usage") or {}
+    out = u.get("completion_tokens")
+    thinking = (u.get("completion_tokens_details") or {}).get("reasoning_tokens", 0)
+    if p.get("reasoning_extra") and out is not None:
+        out += thinking  # billed as output but reported disjoint (see PROVIDERS)
     return (choice.get("message") or {}).get("content"), {
         "in": u.get("prompt_tokens"),
-        "out": u.get("completion_tokens"),
+        "out": out,
         # OpenAI reports cached input under prompt_tokens_details.cached_tokens;
         # DeepSeek uses a top-level prompt_cache_hit_tokens. Only priced in when
         # the spec carries a cache_price (see run_one).
         "cache_hit": (u.get("prompt_cache_hit_tokens")
                       or (u.get("prompt_tokens_details") or {}).get("cached_tokens") or 0),
-        "thinking": (u.get("completion_tokens_details") or {}).get("reasoning_tokens", 0),
+        "thinking": thinking,
         "finish": choice.get("finish_reason"),
     }
 
@@ -196,7 +218,8 @@ def run_anthropic(spec, prompt, keys):
     }
 
 
-RUNNERS = {"openai": run_chat, "deepseek": run_chat, "anthropic": run_anthropic}
+RUNNERS = {"openai": run_chat, "deepseek": run_chat, "xai": run_chat,
+           "anthropic": run_anthropic}
 
 
 def run_one(key, spec, prompt, keys):

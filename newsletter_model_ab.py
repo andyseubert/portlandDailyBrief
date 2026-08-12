@@ -61,6 +61,11 @@ PROVIDERS = {
                    env="OPENAI_API_KEY", token_param="max_completion_tokens"),
     "anthropic": dict(url="https://api.anthropic.com/v1/messages",
                       env="ANTHROPIC_API_KEY", token_param="max_tokens"),
+    # reasoning_extra: xAI reports reasoning tokens disjoint from
+    # completion_tokens and bills them as output — see brief_model_ab.py.
+    "xai": dict(url="https://api.x.ai/v1/chat/completions",
+                env="XAI_API_KEY", token_param="max_tokens",
+                reasoning_extra=True),
 }
 
 # $/MTok (input, output). OpenAI rates re-verified 2026-08-08 (unchanged since
@@ -77,6 +82,11 @@ CHALLENGERS = {
                     price=SONNET5_PRICE),
     "sol":     dict(provider="openai", model="gpt-5.6-sol",   price=(5.00, 30.00)),
     "terra":   dict(provider="openai", model="gpt-5.6-terra", price=(2.00, 12.00)),
+    # Grok 4.6, added 2026-08-12 (launch day) — same entry as brief_model_ab.py:
+    # $2/$6 per docs.x.ai, reasoning bills as output, headroom over the default
+    # output budget so thinking can't starve the draft.
+    "grok":    dict(provider="xai", model="grok-4.6",
+                    price=(2.00, 6.00), max_tokens=48000),
 }
 # Champion = the draft actually generated for this send (Sonnet 4.6, 3/15).
 # Not re-run — copied in for side-by-side reading.
@@ -125,16 +135,22 @@ def run_chat(spec, prompt, keys):
     p = PROVIDERS[spec["provider"]]
     data = _post(p["url"], {
         "model": spec["model"],
-        p["token_param"]: MAX_TOKENS,
+        # Per-spec override for reasoning models whose thinking bills against
+        # the output budget (grok arm) — same convention as brief_model_ab.py.
+        p["token_param"]: spec.get("max_tokens", MAX_TOKENS),
         "messages": [{"role": "user", "content": prompt}],
     }, {"Content-Type": "application/json",
         "Authorization": f"Bearer {keys[spec['provider']]}"})
     choice = (data.get("choices") or [{}])[0]
     u = data.get("usage") or {}
+    out = u.get("completion_tokens")
+    thinking = (u.get("completion_tokens_details") or {}).get("reasoning_tokens", 0)
+    if p.get("reasoning_extra") and out is not None:
+        out += thinking  # billed as output but reported disjoint (see PROVIDERS)
     return (choice.get("message") or {}).get("content"), {
         "in": u.get("prompt_tokens"),
-        "out": u.get("completion_tokens"),
-        "thinking": (u.get("completion_tokens_details") or {}).get("reasoning_tokens", 0),
+        "out": out,
+        "thinking": thinking,
         "finish": choice.get("finish_reason"),
     }
 
@@ -158,7 +174,7 @@ def run_anthropic(spec, prompt, keys):
     }
 
 
-RUNNERS = {"openai": run_chat, "anthropic": run_anthropic}
+RUNNERS = {"openai": run_chat, "xai": run_chat, "anthropic": run_anthropic}
 
 
 def run_one(spec, prompt, keys):
