@@ -1,10 +1,10 @@
 # Pima County Board of Supervisors — Full Agenda Reference
-## Tuesday, August 11, 2026 at 2:00 PM
+## Tuesday, August 11, 2026 at 1:30 PM
 *Study Session*
 
 Location: Board of Supervisors' Hearing Room
 
-**7 substantive items** (7 for discussion, 0 on consent calendar)
+**9 substantive items** (9 for discussion, 0 on consent calendar)
 
 ---
 ## Discussion Items
@@ -18,11 +18,12 @@ Staffing Processes and Vacancy Policy
 1.	Discussion with County Administrator and Deputy County Administrators as to how staffing requests are analyzed and discussed with elected officials and department directors during the annual budgeting process. Also, discussion with same as to how staffing is discussed and monitored by administration throughout the rest of the year.
 2.	Discussion with County Administrator and Deputy County Administrators regarding the existing vacancy policy, how/why its current version was developed and if revisions to the current version should be considered. (District 1) _Agenda Item_
 
-Attachments (4):
+Attachments (5):
 - BOS_StaffingProcessesVacancyPolicy_Dist1Submittal
 - BOS_StaffVacPolQuestions_Dist1Submittal_7-8-26
 - BOS_StaffingProcessesVacancyPolicy_Slides_7-9-26
 - BOS_CAMemo_StaffingVacancyPolicy_7-31-26
+- BOS_VacanctPositionsPolicyUpdate_Slides_8-6-26
 
 [View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21434&GUID=4806DAE8-7112-40B5-8917-3B477CD6C5F7)
 
@@ -59,8 +60,35 @@ Attachments (3):
 ### **8.** Monthly Financial Update
 Discussion regarding a monthly financial update on the County's financial performance. _Agenda Item_
 
+Attachments (2):
+- FN_MonthlyFinancialUpdate_Slides_8-6-26
+- FN_CAMemo_FinancialUpdateJul_8-7-26
+
 [View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21666&GUID=D49D2058-C09D-4A85-96A8-03B3721A24D3)
 
+### **1.** Pursuant to A.R.S. §38-431.03(A)(3), for legal advice and discussion regarding Constable discipline. _Addendum _
+
+Attachments (1):
+- PCA_ExecSession-ConstableDiscipline
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21708&GUID=5A1803D0-DDD8-4467-9333-56495A819424)
+
+### **2.** Recognition of the “We A.R.E. Gems” Quarterly Recipients
+Pursuant to Administrative Procedure 23-5, Employee Recognition Program, the following employees have been selected for the quarterly "We A.R.E. Gems" recognition:
+·	Devin Robles - Library
+·	Alex Du Pont - Assessor Office
+·	Jennifer Black - Human Resources
+·	Hunter Tantlinger - Parks & Recreation
+·	Barbara Geonaga - Conservation Lands & Resources
+·	Sydney Harrington - Public Defense Services
+·	Nichole Casebeer - Regional Flood Control District
+·	Carlos Aguila - Library _Addendum _
+
+Attachments (1):
+- HR_RecognitionWeA.R.E.GemsQrtrlyRecipients
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21706&GUID=E94A0082-C4DF-45F9-B973-BC53EBEEF982)
+
 ---
-*Generated 2026-08-06 08:00 by Tucson Daily Brief agenda mining pipeline*
+*Generated 2026-08-11 09:15 by Tucson Daily Brief agenda mining pipeline*
 *Source: [Pima County Legistar](https://pima.legistar.com/Calendar.aspx)*

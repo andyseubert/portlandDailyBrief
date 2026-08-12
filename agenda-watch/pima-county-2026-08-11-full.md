@@ -3,7 +3,7 @@
 
 Location: Board of Supervisors' Hearing Room
 
-**40 substantive items** (19 for discussion, 21 on consent calendar)
+**49 substantive items** (28 for discussion, 21 on consent calendar)
 
 ---
 ## Public Hearings
@@ -97,9 +97,10 @@ Attachments (1):
 ### **19.** Pima County Legislative Program for 2027
 RESOLUTION NO. 2026 - 42, of the Board of Supervisors, adopting the Pima County Legislative Program for 2027. _Agenda Item_
 
-Attachments (2):
+Attachments (3):
 - CA_CAMemo_PCLegislativeProgram2027
 - CA_ResoPCLegislativeProgram2027
+- CA_PCLegislativeProgram2027_Dist2Submittal_8-10-26
 
 [View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21654&GUID=077F283A-0C2E-4A36-B22C-4F951AA66F77)
 
@@ -124,10 +125,11 @@ Attachments (2):
 ### **22.** Pima County Economic Development Strategic Plan 2026-2029
 Staff recommends adoption of the Economic Development Strategic Plan 2026-2029. _Agenda Item_
 
-Attachments (3):
+Attachments (4):
 - ED_StrategicPlan2026-29
 - ED_CAMemo_StrategicPlan2026-29
 - ED_StrategicPlan2026-29_Slides
+- ED_CAMemo_ContinuanceRequest_8-6-26
 
 [View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21650&GUID=0E236176-BE37-41D1-BF2C-DFF75E94685D)
 
@@ -174,10 +176,84 @@ Attachments (1):
 
 ### **26.** Southern Arizona Education Council, to provide for advancing academic success and civic engagement across Pima County, General Fund, contract amount $122,000.00 (PO2600018227) _Contract and/or Award_
 
-Attachments (1):
+Attachments (4):
 - PO2600018227
+- PO2600018227_CAMemo_8-6-26
+- PO2600018227_CommLtr_8-10-26_Redacted
+- PO2600018227_CommLtrs_8-10-26_Redacted
 
 [View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21696&GUID=4299F5CD-1E10-4185-8E27-FF496AF27D3D)
+
+### **1.** Request for Revisions to Board of Supervisors Policies
+Discussion/Direction/Action: Directing County Administration to revise Board policies D 31.4 (Enhanced Due Diligence Process for Pima County Economic Development Projects) and D 31.3 (Use of Non-Disclosure Agreements in Economic Development Projects) to reflect an expanded scope and criteria. (District 3) _Addendum _
+
+Attachments (1):
+- BOS_RequestRevisionsBOSPolicies_Dist3Submittal
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21684&GUID=AE37A5D0-3672-4E20-9973-EDF0A611D35C)
+
+### **2.** Establishing a 120-day Moratorium on Data Centers in Unincorporated Pima County
+Discussion/Direction/Action: Directing the County Administrator to work with PCAO and county departments to develop a resolution declaring a moratorium on data centers in unincorporated Pima County until the County has completed its zoning code text amendment process. The zoning code change process was initiated by a BOS vote in September 2025; a July 17, 2026 County Administrator memo provided a framework for the process to ensure Pima County zoning categories reflect the unique attributes of data centers. (District 3) _Addendum _
+
+Attachments (1):
+- BOS_MoratoriumDataCenters_Dist3Submittal
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21703&GUID=952D64C5-1C6A-4C77-8440-6724C32718EB)
+
+### **3.** Constable Disciplinary Action
+Discussion/Direction/Action: Regarding disciplinary action of Constable, Justice Precinct 2. _Addendum _
+
+Attachments (1):
+- CA_CAMemo_ConstableDisiplinaryAction
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21709&GUID=A0FA4C4A-562B-4FC9-9932-2B9529247F3B)
+
+### **4.** Distribution of Funds to Pima Animal Care Center from the Estate of Gregory M. Patchen
+Discussion/Direction/Action: To authorize the acceptance of a testamentary distribution from JSB Fiduciary & Estate Management Services, L.L.C. in the amount of $256,509.80 to be used for the Pima Animal Care Center, and a release of liability. _Addendum _
+
+Attachments (1):
+- PCA_DistributionofFundstoPACC
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21678&GUID=AC47D1C9-50A9-4313-A4FF-0CDCFD4CF0E9)
+
+### **5.** Justice of the Peace Pro Tempore Appointment
+Appointment of Justice of the Peace Pro Tempore of the Green Valley Justice Court for the period of August 12, 2026 through June 30, 2027: Darlene Chavira Chavez _Addendum _
+
+Attachments (1):
+- SC_JPProTemporeAppt
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21697&GUID=21553AF6-C673-46AF-8A9F-F8F55B09E0DB)
+
+### **6.** IDEXX Distribution Inc., to provide for laboratory testing services, General Fund, contract amount $350,000.00 (SC2500000648) Administering Department: Pima Animal Care Center _Contract and/or Award_
+
+Attachments (1):
+- SC2500000648
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21673&GUID=C1FA9E85-8FBC-470F-98BD-BC7037E7D27D)
+
+### **7.** Small Business Commission
+Appointment of Jeff Saunders, to fill a vacancy created by Crispin Jeffrey-Franco. No term expiration. (District 1) _Addendum _
+
+Attachments (1):
+- BCC_SmallBusinessCommissionAppt
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21699&GUID=6F69070E-1B0E-437D-8EDC-F3F9BBFF7692)
+
+### **8.** Pima County/Tucson Women’s Commission
+Appointment of Lucy Howell, to fill a vacancy created by Amanda Schreiber. Term expiration: 6/30/30. (Commission recommendation) _Addendum _
+
+Attachments (1):
+- BCC_WomensCommissionAppt
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21702&GUID=B9B8C4D9-CB70-474C-9AAE-B76DAF1BB683)
+
+### **9.** Library Advisory Board
+Appointment of Sharon Foltz. Term expiration: 6/30/30. (District 4) _Budget_
+
+Attachments (1):
+- BCC_LibraryAdvisoryBoardAppt
+
+[View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21710&GUID=B7AA1075-A494-40D8-AB77-43DD6DA271B6)
 
 ---
 ## Consent Calendar
@@ -267,8 +343,9 @@ Attachments (1):
 Arizona Early Childhood Development and Health Board (First Things First), Amendment No. 4, to provide for child care health consultation and amend grant language, $912,450.00 (GA-HD-70298) _Consent Item_
 *(Consent calendar — typically approved without discussion)*
 
-Attachments (1):
+Attachments (2):
 - GA-HD-70298
+- GA-HD-70298_Revised1stpageBOSAIR_8-7-26
 
 [View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21614&GUID=7A61BF16-AB5B-4FAD-A763-0987D34AD1E7)
 
@@ -368,5 +445,5 @@ Attachments (2):
 [View in Legistar](https://pima.legistar.com/LegislationDetail.aspx?ID=21664&GUID=99DF7BDC-0CDE-45B5-AEAC-652801C6B1C0)
 
 ---
-*Generated 2026-08-06 08:00 by Tucson Daily Brief agenda mining pipeline*
+*Generated 2026-08-11 09:17 by Tucson Daily Brief agenda mining pipeline*
 *Source: [Pima County Legistar](https://pima.legistar.com/Calendar.aspx)*
