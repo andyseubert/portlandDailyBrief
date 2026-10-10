@@ -1,8 +1,0 @@
-# Runtime deps for the Ask service (rag/server.py) on Fly.io.
-# Kept separate from the repo-root requirements.txt so the image stays lean
-# (no deepgram-sdk, requests, etc. that the service doesn't use).
-anthropic
-voyageai
-sqlite-vec
-fastapi
-uvicorn[standard]

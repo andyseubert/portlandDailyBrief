@@ -1,0 +1,40 @@
+[
+  {
+    "id":"portland-council-2025-10-03",
+    "body_id":"portland:council",
+    "effective_from":"2025-10-03",
+    "effective_to":null,
+    "verified_on":"2026-10-09",
+    "quorum":7,
+    "membership_size":12,
+    "affirmative_thresholds":{"ordinary_ordinance":7,"emergency_ordinance":9,"franchise_ordinance":9,"ordinance_amendment":7,"resolution":7,"report_acceptance":7},
+    "minimum_reading_interval_days":5,
+    "amendment_interval_days":5,
+    "consent_minimum":9,
+    "consent_unanimous_present":true,
+    "abstention_allowed":true,
+    "mayoral_tiebreak":{"eligible_event_kinds":["ordinary_ordinance","resolution","report_acceptance","quasi_judicial_final"],"excluded":["emergency_ordinance","procedural_motion","officer_election","procedure_rules"],"requires_explicit_mayoral_vote":true,"absences_abstentions_vacancies_count_as_no_for_tie_only":true},
+    "effective_date_policy":"Explicit document date required; ordinary, emergency, franchise, appropriations/tax/local-improvement and referendum exceptions are not interchangeable.",
+    "unverified_exceptions":["quasi-judicial application/appeal fee outcomes","property disposal and street vacations","franchise reading intervals","special procedural motions and suspension of rules","item-specific mayoral eligibility"],
+    "sources":["https://www.portland.gov/charter/2/1","https://www.portland.gov/code/3/02"],
+    "sections":["Charter 2-102, 2-108, 2-111, 2-120, 2-123","Code 3.02.010 A; 3.02.030 A-C, F, J"],
+    "notes":"Composite snapshot begins October 3, 2025, matching the current council-action amendment. Do not apply to earlier meetings without archived rules. Calculations are review checks, not legal conclusions. Committee rules require their own effective-dated configuration."
+  },
+  {
+    "id":"multnomah-board-2026-03-19",
+    "body_id":"multnomah:board",
+    "effective_from":"2026-03-19",
+    "effective_to":null,
+    "verified_on":"2026-10-09",
+    "quorum":3,
+    "membership_size":5,
+    "affirmative_thresholds":{"ordinary_motion":3},
+    "abstention_allowed":false,
+    "chair_votes":true,
+    "ties_fail":true,
+    "unverified_exceptions":["ordinance passage and emergency procedure","consent applicability","motion to close debate depends on attendance","exceptions requiring four votes","participation deadlines by session"],
+    "sources":["https://multco.us/info/board-rules"],
+    "sections":["Board Rules sections 1, 7, 8, 14; references Charter 3.30, 3.40, 3.60"],
+    "notes":"Current rules say adopted March 19, 2026. Ordinary action requires majority of all members except specified exceptions. Chair votes; no abstention unless excused for actual conflict. County rules are never inherited from Portland. Special motions remain held until independently configured."
+  }
+]

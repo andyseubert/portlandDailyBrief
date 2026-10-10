@@ -1,0 +1,155 @@
+[
+  {
+    "id": "opb",
+    "name": "OPB",
+    "url": "https://www.opb.org/arc/outboundfeeds/rss/?outputType=xml",
+    "type": "rss",
+    "jurisdiction": "Oregon; Portland relevance required",
+    "enabled": true,
+    "allowed_hosts": [
+      "www.opb.org",
+      "opb.org"
+    ],
+    "last_validation_date": "2026-10-10",
+    "access_notes": "Publisher advertises Local News Headlines RSS. Terms permit personal noncommercial downloads and restrict public/commercial reuse. Local attributed evidence summaries only; no publication permission assumed. No full article bodies or full-content fields.",
+    "terms_url": "https://www.opb.org/terms/",
+    "expected_update_frequency": "multiple daily",
+    "health_status": "ok"
+  },
+  {
+    "id": "wweek",
+    "name": "Willamette Week",
+    "url": "https://www.wweek.com/arc/outboundfeeds/rss/?outputType=xml",
+    "type": "rss",
+    "jurisdiction": "Portland",
+    "enabled": true,
+    "allowed_hosts": [
+      "www.wweek.com",
+      "wweek.com"
+    ],
+    "last_validation_date": "2026-10-10",
+    "access_notes": "Public publisher-hosted RSS tested. Often brief descriptions: label limited context. Do not fetch paywalled article bodies; no license presumed for republication.",
+    "terms_url": "https://www.wweek.com/",
+    "expected_update_frequency": "daily",
+    "health_status": "ok"
+  },
+  {
+    "id": "mercury",
+    "name": "Portland Mercury",
+    "url": "https://www.portlandmercury.com/portland/Rss.xml",
+    "type": "rss",
+    "jurisdiction": "Portland",
+    "enabled": true,
+    "allowed_hosts": [
+      "www.portlandmercury.com",
+      "portlandmercury.com"
+    ],
+    "last_validation_date": "2026-10-10",
+    "access_notes": "Publisher-hosted RSS tested. Terms say site and feed content is for personal noncommercial use, not further dissemination. This build stays local/private. Strip full-content fields and shorten descriptions. Public reuse is not cleared.",
+    "terms_url": "https://www.portlandmercury.com/terms-of-use",
+    "expected_update_frequency": "daily",
+    "health_status": "not_modified"
+  },
+  {
+    "id": "kgw",
+    "name": "KGW",
+    "url": "https://www.kgw.com/feeds/syndication/rss/news/local",
+    "type": "rss",
+    "jurisdiction": "Portland region; direct local relevance required",
+    "enabled": false,
+    "allowed_hosts": [
+      "www.kgw.com",
+      "kgw.com"
+    ],
+    "last_validation_date": "2026-10-10",
+    "access_notes": "RSS endpoint responds, but terms at /terms prohibit automated requests/scraping absent an applicable exception. Disabled pending permission/clarification; do not assume RSS overrides the terms.",
+    "terms_url": "https://www.kgw.com/terms",
+    "expected_update_frequency": "multiple daily",
+    "health_status": "disabled"
+  },
+  {
+    "id": "koin",
+    "name": "KOIN",
+    "url": "https://www.koin.com/news/portland/feed/",
+    "type": "rss",
+    "jurisdiction": "Portland",
+    "enabled": true,
+    "allowed_hosts": [
+      "www.koin.com",
+      "koin.com"
+    ],
+    "last_validation_date": "2026-10-10",
+    "access_notes": "Public Portland-category RSS tested. Article bodies and terms endpoint returned HTTP 403; no bypass. Use only accessible feed descriptions with limited-context labels; public reuse/AI-specific terms unresolved.",
+    "terms_url": "https://www.koin.com/terms-of-use/",
+    "expected_update_frequency": "multiple daily",
+    "health_status": "ok"
+  },
+  {
+    "id": "kptv",
+    "name": "KPTV",
+    "url": "https://www.kptv.com/arc/outboundfeeds/rss/category/news/?outputType=xml",
+    "type": "rss",
+    "jurisdiction": "Portland region; direct local relevance required",
+    "enabled": false,
+    "allowed_hosts": [
+      "www.kptv.com",
+      "kptv.com"
+    ],
+    "last_validation_date": "2026-10-10",
+    "access_notes": "Terms prohibit automated collection and using station content as input for AI/ML without express written consent. Disabled; technical feed availability is not permission.",
+    "terms_url": "https://www.kptv.com/terms-of-service",
+    "expected_update_frequency": "multiple daily",
+    "health_status": "disabled"
+  },
+  {
+    "id": "portland",
+    "name": "City of Portland",
+    "url": "https://www.portland.gov/news/rss",
+    "type": "rss",
+    "jurisdiction": "Portland",
+    "enabled": true,
+    "allowed_hosts": [
+      "www.portland.gov",
+      "portland.gov"
+    ],
+    "last_validation_date": "2026-10-10",
+    "access_notes": "Official RSS discovered through alternate link on /news. Attribution identifies city announcements; claims are not independently verified. No meeting processing.",
+    "terms_url": "https://www.portland.gov/help/about/privacy",
+    "expected_update_frequency": "daily on business days",
+    "health_status": "ok"
+  },
+  {
+    "id": "multnomah",
+    "name": "Multnomah County",
+    "url": "https://www.multco.us/news",
+    "type": "county_listing",
+    "jurisdiction": "Multnomah County",
+    "enabled": true,
+    "allowed_hosts": [
+      "www.multco.us",
+      "multco.us"
+    ],
+    "last_validation_date": "2026-10-10",
+    "access_notes": "Official HTML news cards with heading links and machine-readable times. No feed assumed. Listing has headlines only; candidates with insufficient evidence are skipped. No meeting or public-record mining.",
+    "terms_url": "https://www.multco.us/",
+    "expected_update_frequency": "business days",
+    "health_status": "not_modified"
+  },
+  {
+    "id": "oregonlive",
+    "name": "The Oregonian / OregonLive",
+    "url": "https://www.oregonlive.com/",
+    "type": "unvalidated",
+    "jurisdiction": "Oregon",
+    "enabled": false,
+    "allowed_hosts": [
+      "www.oregonlive.com",
+      "oregonlive.com"
+    ],
+    "last_validation_date": null,
+    "access_notes": "Candidate only. Disabled until a legitimate current feed or permitted endpoint and terms are verified. No paywall bypass.",
+    "terms_url": "https://www.oregonlive.com/terms/",
+    "expected_update_frequency": "multiple daily",
+    "health_status": "disabled"
+  }
+]

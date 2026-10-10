@@ -1,0 +1,44 @@
+{
+  "timezone": "America/Los_Angeles",
+  "daily_brief": {
+    "provider": null,
+    "model": null,
+    "daily_time": "07:00",
+    "story_maximum": 10,
+    "publication_window_hours": 24,
+    "late_arrival_lookback_hours": 72,
+    "model_revision": null,
+    "configuration_notes": "Null provider/model inherit pinned news settings; task overrides require a matching immutable revision. Other tasks currently support only their named deterministic/manual provider."
+  },
+  "meeting_extraction": {
+    "provider": "deterministic_official_parser",
+    "model": null,
+    "max_pages_per_scan": 4,
+    "historical_backfill": "explicit separate scan",
+    "max_article_words": 500
+  },
+  "meeting_article": {
+    "provider": "deterministic_evidence_template",
+    "model": null,
+    "max_words": 500
+  },
+  "transcription": {
+    "provider": "manual_timestamped_import",
+    "model": null,
+    "automatic_transcript": true,
+    "live_capture_installed": false
+  },
+  "filings": {
+    "provider": "deterministic_official_parser",
+    "model": null,
+    "max_pages_per_scan": 4
+  },
+  "schedule": {
+    "installed": false,
+    "enabled": false,
+    "news_collection_minutes": 60,
+    "meeting_discovery_minutes": 60,
+    "filing_collection_minutes": 1440,
+    "public_publishing": false
+  }
+}

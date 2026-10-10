@@ -1,0 +1,56 @@
+{
+  "portland-council-2026-10-07.html": {
+    "url": "https://www.portland.gov/council/agenda/2026/10/7",
+    "sha256": "37e63e0f238b3960272df693863902e212f026ef17f3d4dc69ff60e5cd20d0ba",
+    "retrieved_local_date": "2026-10-09",
+    "parser_version": "portland-official-v1"
+  },
+  "portland-committees-2026-10-09.html": {
+    "url": "https://www.portland.gov/council/policy-committees",
+    "sha256": "2fd5e0a19e6dad21c0f3b98ea09440e2cdd2bdf9ecb4f740a7f961fa6003b0b3",
+    "retrieved_local_date": "2026-10-09",
+    "parser_version": "portland-official-v1"
+  },
+  "portland-current-documents.html": {
+    "url": "https://www.portland.gov/council/documents",
+    "sha256": "e65233225f3d9aaa358a2745c5c44e316b077acda40e2ef94daf76debc369373",
+    "retrieved_local_date": "2026-10-09",
+    "parser_version": "portland-official-v1"
+  },
+  "portland-votes-first-page.html": {
+    "url": "https://www.portland.gov/council/votes",
+    "sha256": "b934d278aea26cbd12c2fefb306fed78a46fc13d64d21db0c0b190c7ed969620",
+    "retrieved_local_date": "2026-10-09",
+    "parser_version": "portland-official-v1"
+  },
+  "portland-calendar.html": {
+    "url": "https://www.portland.gov/auditor/council-clerk/events",
+    "sha256": "eaaad6aeda66e877c87d48d9c0bb5cd6ce8ac761768a450814feba99cc2a9c74",
+    "retrieved_local_date": "2026-10-09",
+    "parser_version": "portland-official-v1"
+  },
+  "multnomah-archive.html": {
+    "url": "https://multnomah.granicus.com/ViewPublisher.php?view_id=3",
+    "sha256": "cc00fab64ac72d00df98a6daced53ca96340a74c03da64b79b81dcaa66883847",
+    "retrieved_local_date": "2026-10-09",
+    "parser_version": "portland-official-v1"
+  },
+  "portland-land-use-2026-10-09.html": {
+    "url": "https://www.portland.gov/ppd/zoning-land-use/news/2026/10/9/notice-land-use-proposal-lu-26-071183-ad",
+    "sha256": "154842073c6a218b7dd39b823f3e1641666ad8fd17c7efca238215b7cfd9a802",
+    "retrieved_local_date": "2026-10-09",
+    "parser_version": "official-html-v1"
+  },
+  "portland-2026-312-kanal-amendment-2.pdf": {
+    "url": "https://www.portland.gov/sites/default/files/council-documents/2026/2026-312-Kanal-Amendment-2.pdf",
+    "sha256": "ec0b6452ccaaba04430daa2584990e90c38906d65f57b9406ae47ca00f6a46b5",
+    "retrieved_local_date": "2026-10-09",
+    "parser_version": "pypdf-isolated-v1"
+  },
+  "multnomah-2026-10-15-agenda.html": {
+    "url": "https://multnomah.granicus.com/AgendaViewer.php?view_id=3&event_id=3999",
+    "sha256": "037bb631d16d2411ddca25e0c350e685d1345a3011f174bbc93d2b30162ae780",
+    "retrieved_local_date": "2026-10-09",
+    "parser_version": "official-html-v1"
+  }
+}

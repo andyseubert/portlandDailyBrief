@@ -1,0 +1,4 @@
+# Saved official pages retain exact bytes and hashes across operating systems.
+# Treat large source snapshots as binary diffs; review their manifest and parser tests.
+tests/fixtures/*.html -text -diff -whitespace
+tests/fixtures/*.pdf -text -diff -whitespace

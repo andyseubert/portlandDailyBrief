@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "portland-daily-brief"
+version = "0.1.0"
+description = "Independent local Portland news drafts with source evidence and editorial review"
+requires-python = ">=3.12"
+dependencies = ["beautifulsoup4==4.14.3", "feedparser==6.0.12", "defusedxml==0.7.1", "shapely==2.1.2", "pypdf==6.20.0"]
+
+[project.optional-dependencies]
+local-model = ["mlx-lm==0.31.1; sys_platform == 'darwin' and platform_machine == 'arm64'"]
+
+[project.scripts]
+portland-brief = "portland_brief.cli:main"
+portland-civic = "portland_brief.civic.cli:main"
+portland-schedule = "portland_brief.scheduling:main"
+
+[tool.setuptools.packages.find]
+include = ["portland_brief*"]
+
+[tool.setuptools.package-data]
+"portland_brief.civic" = ["*.sql"]
