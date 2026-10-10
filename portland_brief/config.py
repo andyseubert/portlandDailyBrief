@@ -20,11 +20,12 @@ def load_config(root: Path):
             settings['model_revision'] = daily.get('model_revision', settings['model_revision'])
         settings['story_limit'] = min(settings['story_limit'], daily['story_maximum'])
         settings['late_arrival_lookback_hours'] = daily['late_arrival_lookback_hours']
+        settings['scheduling'] = bool(tasks.get('schedule', {}).get('enabled'))
         if not settings['window_hours'] <= settings['late_arrival_lookback_hours'] <= 168:
             raise ValueError('Late arrival lookback must cover the publication window and be at most seven days')
     ZoneInfo(settings["timezone"])
-    if settings.get("public_publishing") or settings.get("scheduling"):
-        raise ValueError("This local build does not support automatic publishing or scheduling")
+    if settings.get("public_publishing"):
+        raise ValueError("Website publishing is not configured; repository drafts are a separate workflow")
     for name in ("story_limit", "per_source_limit", "max_tokens_per_run", "model_attempts"):
         if not isinstance(settings[name], int) or settings[name] < 1:
             raise ValueError(f"{name} must be a positive integer")

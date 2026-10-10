@@ -43,7 +43,7 @@ def run(root, settings, registry, force=False, now=None, summarizer=summarize):
         run_dir = data / "runs" / run_id
         run_dir.mkdir(parents=True)
         store = Store(data / "editorial.sqlite3")
-        doc = {"title": settings["title"], "date": date, "generated_at": datetime.now(timezone.utc).isoformat(), "as_of": now.isoformat(), "timezone": settings["timezone"], "window_hours": settings["window_hours"], "status": "running", "run_id": run_id, "stories": [], "gaps": [], "evidence": {}, "usage": {"provider": settings["provider"], "model": settings["model"], "input_tokens": 0, "output_tokens": 0, "attempts": 0, "api_cost_usd": 0.0}, "generator_version": "0.1.0", "public_publishing": False, "scheduling": False}
+        doc = {"title": settings["title"], "date": date, "generated_at": datetime.now(timezone.utc).isoformat(), "as_of": now.isoformat(), "timezone": settings["timezone"], "window_hours": settings["window_hours"], "status": "running", "run_id": run_id, "stories": [], "gaps": [], "evidence": {}, "usage": {"provider": settings["provider"], "model": settings["model"], "input_tokens": 0, "output_tokens": 0, "attempts": 0, "api_cost_usd": 0.0}, "generator_version": "0.1.0", "public_publishing": False, "scheduling": settings.get('scheduling', False)}
         try:
             fetcher = Fetcher(root, settings, force)
             items, health = collect(fetcher, registry, settings)

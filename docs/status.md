@@ -1,6 +1,6 @@
-# Implementation status — October 9, 2026 (America/Los_Angeles)
+# Implementation status — October 10, 2026 (America/Los_Angeles)
 
-Plan 1 is working locally and tested. Plan 2 has an evidence-first civic and neighborhood increment, not comprehensive Portland-area reporting. No brief or meeting report has been publicly published; no site or persistent schedule has been installed.
+Plan 1 is working locally and tested. Andy authorized daily local execution and repository archiving on October 10. A user LaunchAgent targets 7 a.m. America/Los_Angeles and catches up on wake/login. [Daily review drafts](../briefings.md) are shared in GitHub using dated `posts/` files, complete archive indexes and Git revision history. No website is deployed and no civic report is published. Plan 2 remains an evidence-first civic/neighborhood increment, not comprehensive reporting.
 
 ## Inspection and changes
 
@@ -10,11 +10,13 @@ Implemented now: independent news collection/checkpoints and late-arrival retent
 
 ## Plan 1 validation and first brief
 
-The first source-checked brief contains seven stories, with limited-context labels and original summaries. It is at `output/drafts/archive/2026-10-09/brief.md` and `.html`; its evidence/review page is `output/private-review/2026-10-09.html`. Manual source checking corrected alarm terminology, an unsupported characterization, and an unrelated Eugene comparison. Automatic citation/number checks alone do not establish accuracy. It remains a local draft awaiting Andy's editorial approval.
+The [first source-checked brief](../posts/2026-10-09.md) contains seven stories, with limited-context labels and original summaries. Its evidence/review page remains private at `output/private-review/2026-10-09.html`. Manual source checking corrected alarm terminology, an unsupported characterization, and an unrelated Eugene comparison. Automatic citation/number checks alone do not establish accuracy. Repository sharing does not supply Andy's editorial approval.
 
-OPB, Willamette Week, Portland Mercury, KOIN, Portland RSS and the county listing are technically validated. KGW/KPTV feeds respond but are disabled after terms review; OregonLive is unvalidated and disabled. County cards currently lack enough descriptive evidence for prose. Private noncommercial source restrictions and unresolved public reuse are documented in `config/sources.json`; public release is not enabled.
+OPB, Willamette Week, Portland Mercury, KOIN, Portland RSS and the county listing are technically validated. KGW/KPTV feeds respond but are disabled after terms review; OregonLive is unvalidated and disabled. County cards currently lack enough descriptive evidence for prose. Source constraints remain documented in `config/sources.json`; fetched source text stays private, while the user-authorized archive shares original attributed summaries and links.
 
 Measured sample generation: 5,623 input tokens, 1,731 output tokens, 12 attempted generations including retries, about 61 seconds. The pinned local MLX/Qwen model requires no API credits; API spend is $0. Thirty comparable daily runs would use about 168,690 input and 51,930 output tokens, including the measured retries. The configured 30,000-token/run ceiling bounds 30 runs at 900,000 tokens. Download/storage, electricity and human review are separate unpriced costs. These are measurements/estimates for this local workload, not a cloud service quote or a promise of unattended factual accuracy.
+
+The October 10 run produced eight supported review-draft stories using 5,563 input tokens and 1,756 output tokens across 12 attempts, with $0 API spend and 196.55 seconds of model time. A source comparison corrected unsupported roundtable detail, school-closure characterization, and a singular firefighter reference before archiving. Both dated editions are retained. The installed runner and independent collector execution have been checked on this Mac.
 
 ## Actual official coverage
 
@@ -48,7 +50,7 @@ Development-time parser corrections remain in private history. Three initially m
 | Versioning/recovery | Raw/source/parser hashes, meaningful-change detection, no outage removal alerts, review revocation | Changed participation/media parsing for every format; full disaster restore drill |
 | Before/after/follow-through | Linked evidence excerpts, structured records, document-based drafts and missing outcomes | Editorially refined consequence articles; verified quotes/recording discussion and later implementation tracking |
 | Neighborhood coverage | Stable filing events/stages, official field tags, geometry intersection and ambiguity | Neighborhood-contact API, automatic verified geocoding, association registry population |
-| Independent collection/schedule | Separate locks/checkpoints, durable due jobs, LA/DST tests, bounded failures | Persistent OS runner remains uninstalled; full source inventory reconciliation |
+| Independent collection/schedule | Installed Mac runner, separate locks/checkpoints, durable due jobs, LA/DST tests, bounded failures and repository retry | Full source inventory reconciliation; missed historical dates require explicit backfill |
 | Meeting capture/attribution | Job/chunk/gap persistence, input capture, archived fallback jobs, raw transcript/vocabulary, uncertain speaker labels | Real public recording test, council YouTube adapter, automatic transcription, reviewed attribution/quotation and live completion verification |
 | Outcomes/article/review | Official structured outcomes, bounded views, evidence review HTML, approve/edit/hold/correct, versioned evidence and recorded review seconds | Long-transcript outcome reconciliation and measured human editorial workload |
 | Archive/costs | Private revisions, jurisdiction/matter/evidence metadata, token/retry/storage/capture/review metrics | Approved civic export/search/chat, production operating-cost measurements |
@@ -57,8 +59,8 @@ Current procedural sources: [Portland Charter](https://www.portland.gov/charter/
 
 ## Validation and next gate
 
-66 tests pass, including saved real October 7 actions/roll calls, the October 15 county agenda, an actual land-use notice and a real official amendment PDF. Synthetic cases explicitly test continuation identity, consent linkage without invented roll calls, contradictory tallies, outages, changed attachments, historical membership limits, geometry ambiguity, missing recordings, citation integrity, idempotent reprocessing, backups, late arrivals and independent scheduled failures. An actual two-second local `ffmpeg` capture verifies persisted input and safe reruns; it is not a real meeting report. No human meeting-review duration has been measured and no meeting report is approved.
+75 tests pass, including saved real October 7 actions/roll calls, the October 15 county agenda, an actual land-use notice and a real official amendment PDF. Synthetic cases explicitly test continuation identity, consent linkage without invented roll calls, contradictory tallies, outages, changed attachments, historical membership limits, geometry ambiguity, missing recordings, citation integrity, idempotent reprocessing, backups, late arrivals and independent scheduled failures. Added archive checks verify excluded private evidence, preserved correction history, no duplicate commits, retry after a failed push, rejection of unrelated staged files and exclusion of private files placed in posts/, launchd configuration, wake catch-up, reuse of an already generated daily edition, and the pause switch. An actual two-second local `ffmpeg` capture verifies persisted input and safe reruns; it is not a real meeting report. No human meeting-review duration has been measured and no meeting report is approved.
 
-The next release gate is reviewed meeting coverage: complete explicit calendar/session links, historical roster/rule evidence, PDF/official-action reconciliation, then one permitted archived recording and a timestamp-supported report. Systematic coverage cannot be claimed until discovered meetings reconcile with processed records. Hosting, public publishing, public search and persistent scheduling remain later stages.
+The next release gate is reviewed meeting coverage: complete explicit calendar/session links, historical roster/rule evidence, PDF/official-action reconciliation, then one permitted archived recording and a timestamp-supported report. Systematic coverage cannot be claimed until discovered meetings reconcile with processed records. Website hosting, civic publishing and public search remain later stages.
 
 No podcast, voice cloning, social distribution, newsletter, crossword, automatic outreach, paid service or public deployment is enabled. GitHub is a user-authorized fork with independently written Portland code on its own branch; Actions are disabled and Pages is off. See `docs/civic-operations.md` and `README.md` for complete commands and source/recovery limits.

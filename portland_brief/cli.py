@@ -52,7 +52,7 @@ def main(argv=None):
         settings, registry = load_config(root)
         if args.command == "run":
             doc, path = run(root, settings, registry, force=args.refresh)
-            print(json.dumps({"status": doc["status"], "stories": len(doc["stories"]), "markdown": str(path / "brief.md"), "html": str(path / "brief.html"), "coverage_gaps": doc["gaps"], "usage": doc["usage"], "published": False, "scheduled": False}, indent=2))
+            print(json.dumps({"status": doc["status"], "stories": len(doc["stories"]), "markdown": str(path / "brief.md"), "html": str(path / "brief.html"), "coverage_gaps": doc["gaps"], "usage": doc["usage"], "published": False, "scheduled": settings.get('scheduling', False)}, indent=2))
             return 0
         if args.command == "collect-news":
             with run_lock(root / settings["data_path"] / "news-collection.lock"):
@@ -85,7 +85,7 @@ def main(argv=None):
             store = Store(root / settings["data_path"] / "editorial.sqlite3")
             try:
                 if args.command == "status":
-                    print(json.dumps({"editions": store.list_editions(), "source_health": [json.loads(r[0]) for r in store.db.execute("SELECT record FROM source_health")], "published": False, "scheduled": False}, indent=2))
+                    print(json.dumps({"editions": store.list_editions(), "source_health": [json.loads(r[0]) for r in store.db.execute("SELECT record FROM source_health")], "published": False, "scheduled": settings.get('scheduling', False)}, indent=2))
                 elif args.command == "review":
                     print(review_page(store, args.date, root / settings["output_path"] / "private-review" / (args.date + ".html")))
                 elif args.command == "export-edits":

@@ -34,11 +34,19 @@
     "max_pages_per_scan": 4
   },
   "schedule": {
-    "installed": false,
-    "enabled": false,
+    "installed": true,
+    "enabled": true,
     "news_collection_minutes": 60,
     "meeting_discovery_minutes": 60,
     "filing_collection_minutes": 1440,
-    "public_publishing": false
+    "public_publishing": false,
+    "catch_up_after_wake": true
+  },
+  "repository_archive": {
+    "enabled": true,
+    "remote_url": "https://github.com/andyseubert/portlandDailyBrief.git",
+    "format": "posts/YYYY-MM-DD.html and .md; briefings.html, briefings.md, index.html",
+    "draft_sharing_authorized": "Andy Seubert, 2026-10-10",
+    "editorial_approval_required_for_civic_reports": true
   }
 }

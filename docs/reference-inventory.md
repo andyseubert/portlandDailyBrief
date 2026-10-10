@@ -6,7 +6,7 @@ The GitHub API reports no license. The user authorized a GitHub fork; that creat
 
 | Capability | Evidence in reference | Verification level | Portland increment |
 | --- | --- | --- | --- |
-| Daily written brief and archive | `pipeline/TUCSON-BRIEF.md`, `PIPELINE.md`, dated `posts/` HTML, `generate_post.py` | Public instructions and artifacts verified; runtime not exercised | Local text-only brief |
+| Daily written brief and archive | `pipeline/TUCSON-BRIEF.md`, `PIPELINE.md`, dated `posts/` HTML, `generate_post.py` | Public instructions and artifacts verified; runtime not exercised | Local text-only brief; independently implemented dated `posts/`, `briefings.html`, latest index and Git history |
 | Agenda previews | `agenda-watch/*-preview.md`, `meeting-watch/*.html`, agenda mining modules | Artifact/module existence verified; live runtime not tested | Official calendar/agenda adapter |
 | Recorded/live meeting reports | `ai_reporter_vod.py`, `ai_reporter_live.py`, `news-reports/*.html` | Implementation/artifacts present; access, capture and costs not audited | Independent recoverable civic jobs |
 | Development/business public records | `dev_watch_*.py`, `public_record_liquor*.py`, `around-town/`, `public-record/` | Source-specific modules/artifacts present; no assumed Portland equivalent | Verified Portland notices first |

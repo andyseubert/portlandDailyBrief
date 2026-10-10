@@ -11,12 +11,17 @@ from .validation import validate_story, supporting_spans
 
 def main():
     from huggingface_hub import snapshot_download
-    from mlx_lm import load, stream_generate
-    from mlx_lm.sample_utils import make_sampler
     request = json.loads(Path(sys.argv[1]).read_text())
     settings = request["settings"]
+    from mlx_lm import load, stream_generate
+    from mlx_lm.sample_utils import make_sampler
     start = time.monotonic()
-    local_path = snapshot_download(settings["model"], revision=settings["model_revision"], allow_patterns=["*.json", "*.safetensors", "*.jinja", "*.txt"])
+    options = dict(revision=settings['model_revision'], allow_patterns=['*.json', '*.safetensors', '*.jinja', '*.txt'])
+    from huggingface_hub.errors import LocalEntryNotFoundError
+    try:
+        local_path = snapshot_download(settings['model'], local_files_only=True, **options)
+    except LocalEntryNotFoundError:
+        local_path = snapshot_download(settings['model'], **options)
     model, tokenizer = load(local_path, tokenizer_config={"trust_remote_code": False})
     usage = {"provider": "mlx", "model": settings["model"], "model_revision": settings["model_revision"], "input_tokens": 0, "output_tokens": 0, "attempts": 0, "api_cost_usd": 0.0}
     stories, failures = [], []

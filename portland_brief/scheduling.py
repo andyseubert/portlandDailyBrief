@@ -36,12 +36,29 @@ def next_local_daily(now, clock='07:00', zone='America/Los_Angeles'):
 def definitions(root):
     config = json.loads((root / 'config/tasks.json').read_text())
     python = str(root / '.venv/bin/python')
-    return config, {
+    jobs = {
         'news-collect': ('news', [python, '-m', 'portland_brief.cli', '--root', str(root), 'collect-news'], config['schedule']['news_collection_minutes'] * 60),
         'news-synthesis': ('news', [python, '-m', 'portland_brief.cli', '--root', str(root), 'run'], None),
         'meetings-discovery': ('meetings', [python, '-m', 'portland_brief.civic.cli', '--root', str(root), 'discover'], config['schedule']['meeting_discovery_minutes'] * 60),
         'filings-collect': ('filings', [python, '-m', 'portland_brief.civic.cli', '--root', str(root), 'filings'], config['schedule']['filing_collection_minutes'] * 60)
     }
+    if config.get('repository_archive', {}).get('enabled'):
+        jobs['archive-sync'] = ('archive', [python, '-m', 'portland_brief.repository_archive', '--root', str(root), '--push'], 300)
+    return config, jobs
+
+
+def initial_daily(root, now, config):
+    """Catch up today's missing edition after wake/login; never fabricate backfill."""
+    local = now.astimezone(ZoneInfo(config['timezone']))
+    hour, minute = map(int, config['daily_brief']['daily_time'].split(':'))
+    missing = True
+    path = root / 'data/editorial.sqlite3'
+    if path.exists():
+        with sqlite3.connect(f'file:{path}?mode=ro', uri=True) as db:
+            missing = not db.execute('SELECT 1 FROM editions WHERE date=?', (local.date().isoformat(),)).fetchone()
+    if config['schedule'].get('catch_up_after_wake', True) and missing and (local.hour, local.minute) >= (hour, minute):
+        return now
+    return next_local_daily(now, config['daily_brief']['daily_time'], config['timezone'])
 
 
 def tick(root, execute=False, now=None, runner=subprocess.run):
@@ -55,13 +72,23 @@ def tick(root, execute=False, now=None, runner=subprocess.run):
         db.executescript('''CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY,pipeline TEXT,next_due TEXT,state TEXT,attempts INTEGER,last_result TEXT);
         CREATE TABLE IF NOT EXISTS attempts(id INTEGER PRIMARY KEY,job_id TEXT,started_at TEXT,finished_at TEXT,exit_code INTEGER,log_path TEXT);''')
         for key, (pipeline, command, cadence) in jobs.items():
-            initial = now if cadence else next_local_daily(now, config['daily_brief']['daily_time'], config['timezone'])
+            initial = now if cadence else initial_daily(root, now, config)
             db.execute('INSERT OR IGNORE INTO jobs VALUES(?,?,?,\'pending\',0,NULL)', (key, pipeline, initial.isoformat()))
         # A crashed scheduler leaves running entries retryable on its next exclusive tick.
         db.execute("UPDATE jobs SET state='retry' WHERE state='running'")
+        # Manual generation can finish while a scheduled occurrence is retrying.
+        # Reuse that dated edition rather than invalidating it with another run.
+        daily = db.execute("SELECT next_due FROM jobs WHERE id='news-synthesis'").fetchone()
+        edition_db = root / 'data/editorial.sqlite3'
+        if daily['next_due'] <= now.isoformat() and edition_db.exists():
+            with sqlite3.connect(f'file:{edition_db}?mode=ro', uri=True) as editions:
+                today = now.astimezone(ZoneInfo(config['timezone'])).date().isoformat()
+                existing = editions.execute('SELECT 1 FROM editions WHERE date=?', (today,)).fetchone()
+            if existing:
+                db.execute("UPDATE jobs SET next_due=?,state='pending',attempts=0,last_result=? WHERE id='news-synthesis'", (next_local_daily(now, config['daily_brief']['daily_time'], config['timezone']).isoformat(), json.dumps({'reused_existing_edition': today})))
         due = [dict(r) for r in db.execute('SELECT * FROM jobs WHERE next_due<=? AND state IN (\'pending\',\'retry\')', (now.isoformat(),))]
         if not execute:
-            result = {'due_jobs': due, 'next_daily': next_local_daily(now, config['daily_brief']['daily_time']).isoformat(), 'executed': False, 'os_service_installed': config['schedule']['installed']}
+            result = {'due_jobs': due, 'next_daily': db.execute("SELECT next_due FROM jobs WHERE id='news-synthesis'").fetchone()[0], 'executed': False, 'os_service_installed': config['schedule']['installed']}
             db.commit(); db.close(); return result
         # Persist claims before launching children. One failed job does not cancel other pipelines.
         for job in due:
@@ -89,24 +116,28 @@ def tick(root, execute=False, now=None, runner=subprocess.run):
                 output.append({'job': job['id'], 'exit_code': code, 'state': state, 'next_due': next_due.isoformat(), 'log': str(log)})
                 db.commit()
         db.close()
-    return {'results': output, 'executed': True, 'published': False, 'os_service_installed': False}
+    return {'results': output, 'executed': True, 'website_published': False, 'os_service_installed': config['schedule']['installed']}
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(description='Local private-draft scheduler; no publishing')
+    p = argparse.ArgumentParser(description='Independent local collectors and configured repository draft archive')
     p.add_argument('--root', type=Path, default=Path.cwd())
     sub = p.add_subparsers(dest='command', required=True)
     one = sub.add_parser('tick'); one.add_argument('--run', action='store_true')
+    one.add_argument('--scheduled', action='store_true', help='Respect the configured pause switch (for launchd)')
     serve = sub.add_parser('serve'); serve.add_argument('--poll-seconds', type=int, default=30)
     args = p.parse_args(argv)
     root = args.root.resolve()
     if args.command == 'tick':
+        if args.scheduled and not definitions(root)[0]['schedule'].get('enabled'):
+            print(json.dumps({'executed': False, 'paused': True})); return 0
         print(json.dumps(tick(root, args.run), indent=2)); return 0
     if not 1 <= args.poll_seconds <= 60:
         p.error('Poll interval must be 1–60 seconds')
     try:
         while True:
-            print(json.dumps(tick(root, True)), flush=True)
+            if definitions(root)[0]['schedule'].get('enabled'):
+                print(json.dumps(tick(root, True)), flush=True)
             time.sleep(args.poll_seconds)
     except KeyboardInterrupt:
         return 0

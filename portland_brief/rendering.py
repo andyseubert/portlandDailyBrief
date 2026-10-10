@@ -41,7 +41,7 @@ def markdown_text(text):
     return result
 
 
-def markdown(doc):
+def markdown(doc, repository=False):
     esc = markdown_text
     lines = [f"# {esc(doc['title'])} — {doc['date']}", "", "**LOCAL DRAFT — NOT PUBLISHED. Editorial review required.**", "", f"Generated {local_time(doc['generated_at'], doc['timezone'])}.", f"Coverage: Portland and directly relevant Multnomah County developments; rolling {doc['window_hours']}-hour window.", "", "AI-assisted summaries from fetched evidence. These are attributed summaries, not independent reporting.", ""]
     if doc["gaps"]:
@@ -62,11 +62,15 @@ def markdown(doc):
             lines += ["", "Review note: overlapping source descriptions contain different numbers; compare their scope and timing."]
     if not doc["stories"]:
         lines += ["", "No supported Portland story summaries were produced for this window. No quota was filled."]
-    lines += ["", "## Run information", "", f"Local model: {esc(doc['usage']['model'])}. Input tokens: {doc['usage']['input_tokens']}; output tokens: {doc['usage']['output_tokens']}; model attempts: {doc['usage']['attempts']}. API cost: $0.", "", "Publishing disabled. Scheduling disabled. Source health and evidence are retained in the private run record.", ""]
-    return "\n".join(lines)
+    lines += ["", "## Run information", "", f"Local model: {esc(doc['usage']['model'])}. Input tokens: {doc['usage']['input_tokens']}; output tokens: {doc['usage']['output_tokens']}; model attempts: {doc['usage']['attempts']}. API cost: $0.", "", "Publishing disabled. Scheduling " + ('enabled' if doc.get('scheduling') else 'disabled') + ". Source health and evidence are retained in the private run record.", ""]
+    result = "\n".join(lines)
+    if repository:
+        result = result.replace("LOCAL DRAFT — NOT PUBLISHED. Editorial review required.", "REVIEW DRAFT — shared in the repository. Editorial review required.")
+        result = result.replace("Publishing disabled. Scheduling " + ('enabled' if doc.get('scheduling') else 'disabled') + ". Source health and evidence are retained in the private run record.", "Daily collection and repository archiving are enabled. Source evidence and model inputs remain private. This is an AI-assisted review draft, not an editor-approved report.")
+    return result
 
 
-def html(doc, root_index=False):
+def html(doc, root_index=False, repository=False):
     e = escape
     content = [f"<h1>{e(doc['title'])}<br>{e(doc['date'])}</h1>", '<p class="notice"><strong>LOCAL DRAFT — NOT PUBLISHED.</strong> Editorial review required.</p>', f"<p class=\"meta\">Generated {e(local_time(doc['generated_at'], doc['timezone']))}. Rolling {doc['window_hours']}-hour window. Portland and directly relevant Multnomah County.</p>", "<p>AI-assisted summaries from fetched evidence. Attributed summaries, not independent reporting.</p>"]
     if doc["gaps"]:
@@ -91,9 +95,17 @@ def html(doc, root_index=False):
         content.append("</article>")
     if not doc["stories"]:
         content.append("<p>No supported stories were produced for this window; no quota was filled.</p>")
-    content.append(f'<footer class="meta">Local model: {e(doc["usage"]["model"])}. Input/output tokens: {doc["usage"]["input_tokens"]}/{doc["usage"]["output_tokens"]}. API cost $0. Publishing and scheduling disabled.</footer>')
+    operation = 'Publishing disabled; local scheduling enabled.' if doc.get('scheduling') else 'Publishing and scheduling disabled.'
+    content.append(f'<footer class="meta">Local model: {e(doc["usage"]["model"])}. Input/output tokens: {doc["usage"]["input_tokens"]}/{doc["usage"]["output_tokens"]}. API cost $0. {operation}</footer>')
     nav = '<a href="archive/index.html">Dated drafts</a>' if root_index else '<a href="../../index.html">Latest draft</a><a href="../index.html">Dated drafts</a>'
-    return page(doc["title"] + " — " + doc["date"], "".join(content), nav)
+    result = page(doc["title"] + " — " + doc["date"], "".join(content), nav)
+    if repository:
+        result = result.replace("LOCAL DRAFT — NOT PUBLISHED.", "REVIEW DRAFT — shared in the repository.")
+        result = result.replace(operation, "Daily collection and repository archiving enabled; source evidence and model inputs remain private. Editorial review required.")
+        old_nav = '<nav aria-label="Brief navigation">' + nav + '</nav>'
+        new_nav = '<nav aria-label="Brief navigation"><a href="' + ('' if root_index else '../') + 'briefings.html">Daily archive</a><a href="' + ('posts/' if root_index else '') + doc['date'] + '.md">Read Markdown</a></nav>'
+        result = result.replace(old_nav, new_nav)
+    return result
 
 
 def page(title, content, nav=""):
