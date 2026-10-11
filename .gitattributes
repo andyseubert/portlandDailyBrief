@@ -3,3 +3,4 @@
 tests/fixtures/*.html -text -diff -whitespace
 tests/fixtures/*.pdf -text -diff -whitespace
 tests/fixtures/portland-permits-6866-se-87th.json -text -diff -whitespace
+tests/fixtures/portland-commercial-construction-page-*.json -text -diff -whitespace

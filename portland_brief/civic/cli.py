@@ -15,6 +15,7 @@ from .geography import fetch_boundaries, import_filing, notice_links, parse_noti
 from .reports import generate, review
 from .capture import create_job, run_capture, import_transcript, vocabulary
 from .projects import lookup as lookup_project
+from .developments import scan as scan_developments
 
 
 def coverage(store):
@@ -62,6 +63,8 @@ def main(argv=None):
     project.add_argument('--address', required=True)
     project.add_argument('--limit', type=int, default=100)
     project.add_argument('--refresh', action='store_true')
+    developments = sub.add_parser('developments', help='Screen official new-construction permits and write a private mixed-use review draft')
+    developments.add_argument('--refresh', action='store_true')
     for action in ['approve', 'hold', 'edit', 'correct']:
         p = sub.add_parser(action)
         p.add_argument('report_id')
@@ -95,9 +98,13 @@ def main(argv=None):
             jid = create_job(store, args.meeting_id, args.url, args.mode)
             result = {'job_id': jid, **run_capture(store, jid, args.max_seconds)}
         else:
-            with run_lock(database.parent / ('filings.lock' if args.command in {'filings', 'import-filing', 'lookup-project'} else 'meetings.lock')):
+            with run_lock(database.parent / ('filings.lock' if args.command in {'filings', 'import-filing', 'lookup-project', 'developments'} else 'meetings.lock')):
                 if args.command == 'lookup-project':
                     result = lookup_project(store, fetcher, args.address, args.limit)
+                elif args.command == 'developments':
+                    source = next(s for s in registry if s['type'] == 'development_permits' and s['enabled'])
+                    cfg = json.loads((root / 'config/tasks.json').read_text())['filings']['development_focus']
+                    result = scan_developments(store, fetcher, source, cfg, root / settings['output_path'] / 'development-review')
                 elif args.command == 'discover':
                     if not 1 <= args.max_pages <= 1000 or (args.start_url and not args.source):
                         raise ValueError('Use a bounded page budget and source for continuations')
@@ -169,6 +176,9 @@ def main(argv=None):
                         try:
                             if source['type'] == 'arcgis_geometry' and args.boundaries:
                                 result.append(fetch_boundaries(store, fetcher, source))
+                            elif source['type'] == 'development_permits':
+                                cfg = json.loads((root / 'config/tasks.json').read_text())['filings']['development_focus']
+                                result.append(scan_developments(store, fetcher, source, cfg, root / settings['output_path'] / 'development-review'))
                             elif source['type'] == 'land_use_notices':
                                 data, meta = fetcher.get(source['url'], 'html')
                                 if meta.get('status') == 'stale_cache':
@@ -202,6 +212,8 @@ def main(argv=None):
                     target.close()
                     result = {'backup': str(args.out), 'source_artifacts': str(database.parent / 'source-versions'), 'note': 'Back up source-versions and capture directories with the database.'}
         print(json.dumps(result, indent=2, ensure_ascii=False))
+        if args.command == 'developments' and result['errors']:
+            return 1
         return 0
     except (ValueError, RuntimeError, OSError, sqlite3.Error) as exc:
         store.db.rollback()

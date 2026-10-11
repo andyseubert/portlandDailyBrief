@@ -45,3 +45,5 @@ CREATE TABLE IF NOT EXISTS vote_event_versions(id TEXT PRIMARY KEY, vote_event_i
 
 CREATE TABLE IF NOT EXISTS register_observations(id TEXT PRIMARY KEY, matter_id TEXT REFERENCES matters(id), publication_date TEXT NOT NULL, person_id TEXT REFERENCES people(id), position TEXT NOT NULL, passage_id TEXT REFERENCES passages(id), data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS person_aliases(alias TEXT PRIMARY KEY,person_id TEXT REFERENCES people(id),method TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS development_records(id TEXT PRIMARY KEY, source_id TEXT NOT NULL, folder_id INTEGER NOT NULL, source_url TEXT NOT NULL, source_version TEXT NOT NULL REFERENCES source_versions(id), passage_id TEXT NOT NULL REFERENCES passages(id), content_hash TEXT NOT NULL, state TEXT NOT NULL, data TEXT NOT NULL, UNIQUE(source_id,folder_id));
+CREATE TABLE IF NOT EXISTS development_versions(id TEXT PRIMARY KEY, record_id TEXT NOT NULL REFERENCES development_records(id), source_version TEXT NOT NULL REFERENCES source_versions(id), passage_id TEXT NOT NULL REFERENCES passages(id), content_hash TEXT NOT NULL, data TEXT NOT NULL);

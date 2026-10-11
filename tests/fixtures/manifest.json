@@ -67,5 +67,27 @@
       "STATUS",
       "DESCRIPTION"
     ]
+  },
+  "portland-commercial-construction-page-1.json": {
+    "url": "https://www.portlandmaps.com/arcgis/rest/services/Public/BDS_Permit/MapServer/2/query?f=json&where=CREATEDATE+%3E%3D+TIMESTAMP+%272025-10-10+00%3A00%3A00%27&outFields=OBJECTID%2CFOLDERKEY%2CAPPLICATION%2CPERMIT%2CSTATUS%2CHOUSE%2CDIRECTION%2CPROPSTREET%2CSTREETTYPE%2CCITY%2CCOUNTY%2CFOLDERTYPE%2CTYPE%2CWORK_DESCRIPTION%2CDESCRIPTION%2CNUMBSTORIES%2CNUMNEWUNITS%2CPORTLAND_MAPS_URL%2CNEIGHBORHOOD%2CGIS_LOCATION_TYPE%2CCREATEDATE%2CISSUED%2CFINALED&outSR=4326&resultRecordCount=100&resultOffset=0&orderByFields=OBJECTID+ASC",
+    "sha256": "fd3817000fdd6dda5f789bac5654a6a1507e438cba9186467a811e64cf9b9848",
+    "retrieved_local_date": "2026-10-10",
+    "retrieved_at": "2026-10-11T03:14:22.079406+00:00",
+    "parser_version": "mixed-use-permits/3"
+  },
+  "portland-commercial-construction-page-2.json": {
+    "url": "https://www.portlandmaps.com/arcgis/rest/services/Public/BDS_Permit/MapServer/2/query?f=json&where=CREATEDATE+%3E%3D+TIMESTAMP+%272025-10-10+00%3A00%3A00%27&outFields=OBJECTID%2CFOLDERKEY%2CAPPLICATION%2CPERMIT%2CSTATUS%2CHOUSE%2CDIRECTION%2CPROPSTREET%2CSTREETTYPE%2CCITY%2CCOUNTY%2CFOLDERTYPE%2CTYPE%2CWORK_DESCRIPTION%2CDESCRIPTION%2CNUMBSTORIES%2CNUMNEWUNITS%2CPORTLAND_MAPS_URL%2CNEIGHBORHOOD%2CGIS_LOCATION_TYPE%2CCREATEDATE%2CISSUED%2CFINALED&outSR=4326&resultRecordCount=100&resultOffset=100&orderByFields=OBJECTID+ASC",
+    "sha256": "c6592ec6b80507b239ca253aebf8a4bfc957c22ccfa01c728ed008dedb2c18a0",
+    "retrieved_local_date": "2026-10-10",
+    "retrieved_at": "2026-10-11T03:14:22.662604+00:00",
+    "parser_version": "mixed-use-permits/3"
+  },
+  "portland-commercial-intake-5243125.html": {
+    "url": "https://www.portlandmaps.com/reports/index.cfm?action=co-intakes&start_date=10%2F10%2F2025&end_date=10%2F10%2F2026&search_field=IVR_NUMBER&search_value=5243125",
+    "sha256": "558b152c79838eb791e96795018d7ba53f44a6608a22d513ae2e84f856839705",
+    "retrieved_local_date": "2026-10-10",
+    "retrieved_at": "2026-10-11T03:20:14.481005+00:00",
+    "parser_version": "commercial-intake-crosscheck/1",
+    "verified_note": "Six stories, 127 homes, retail and Under Review agree; intake street address conflicts with GIS address, requiring review."
   }
 }

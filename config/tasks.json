@@ -60,7 +60,15 @@
     "provider": "deterministic_official_parser",
     "model": null,
     "max_pages_per_scan": 4,
-    "coverage_priority": "city_and_county_development_and_zoning"
+    "coverage_priority": "city_and_county_development_and_zoning",
+    "development_focus": {
+      "minimum_stories": 4,
+      "lookback_days": 365,
+      "page_size": 100,
+      "max_pages": 4,
+      "notes": "Prioritize whole new-construction records with explicit housing and commercial components. Four stories means more than three. Missing evidence and conflicting heights remain review candidates. Baseline discoveries are not new events today; no automatic civic publication.",
+      "verify_intake_reports": true
+    }
   },
   "schedule": {
     "installed": true,

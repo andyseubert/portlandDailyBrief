@@ -292,5 +292,44 @@
     "last_successful_check_at": null,
     "coverage_priority": "development_and_zoning",
     "notes": "Separate commercial/residential intake, issued and land-use reports. Manual report verified; full export pagination and incremental checkpoints not implemented. Preserve intake/issuance stages and parent/deferred submittal identities."
+  },
+  {
+    "id": "portland-commercial-construction",
+    "jurisdiction": "portland",
+    "pipeline": "filings",
+    "type": "development_permits",
+    "url": "https://www.portlandmaps.com/arcgis/rest/services/Public/BDS_Permit/MapServer/2",
+    "official_entry": "https://www.portland.gov/ppd/public-records",
+    "method": "Paged official Commercial Construction GIS feature query, count reconciliation, deterministic height/use screening",
+    "cadence": "daily in existing filings job",
+    "enabled": true,
+    "health_status": "live_scan_validated",
+    "notes": "Whole CO new-construction records in configured creation-date lookback. Source NUMBSTORIES may be zero/missing or conflict with description; do not use zoning capacity as proposed height. No private project/parent-permit merging by title or address. Review drafts only; not comprehensive city/county development coverage.",
+    "last_check_at": "2026-10-11T03:25:15.524832+00:00",
+    "last_successful_check_at": "2026-10-11T03:25:15.524832+00:00",
+    "coverage": {
+      "source_id": "portland-commercial-construction",
+      "expected_records": 141,
+      "processed_records": 141,
+      "pages": 2,
+      "complete": true,
+      "errors": [],
+      "created_since": "2025-10-10",
+      "scope": "Commercial Construction GIS layer within creation-date lookback; not all city development",
+      "status": "processed",
+      "checked_at": "2026-10-11T03:25:15.524832+00:00",
+      "screening_counts": {
+        "needs_evidence": 62,
+        "excluded": 76,
+        "hold_conflict": 1,
+        "matches_filter": 2
+      },
+      "intake_crosschecks": {
+        "conflict": 2,
+        "not_listed": 1,
+        "pending_budget": 0
+      },
+      "reconciliation_status": "needs_review"
+    }
   }
 ]

@@ -64,7 +64,15 @@ For a development you see while driving, use the city's [construction/demolition
 .venv/bin/portland-civic lookup-project --address '6866 SE 87TH AVE' --refresh
 ```
 
-This returns bounded official permit records and evidence links, saves private source versions, and uses no model. It preserves each permit's identity and exact status. Automatic permit monitoring and a project watchlist remain pending.
+This returns bounded official permit records and evidence links, saves private source versions, and uses no model. It preserves each permit's identity and exact status. The initial commercial new-construction monitor described below now runs in the existing daily filings job; broader permit coverage and address-based watchlists remain pending.
+
+The first development reporting focus is **four or more stories with residences and commercial space in the same project**. `filings.development_focus` in `config/tasks.json` controls the height threshold, creation-date lookback and bounded pagination. Official permit descriptions supply the use/height evidence; zoning capacity and housing support offices do not establish a qualifying business component. Conflicting heights or official addresses are held for review. Run the same collection manually:
+
+```sh
+.venv/bin/portland-civic developments --refresh
+```
+
+Open `output/development-review/watch.html` or `watch.md`; `records.json` retains evidence and other missing-detail candidates. The first scan reconciled 141 records across two pages within the chosen one-year Commercial Construction GIS scope. Two records matched the height/use criteria; intake cross-checks exposed an address conflict for one, while another candidate had conflicting height and address fields. These are private baseline drafts, not new activity today or approved articles. [Development reporting milestones](docs/development-reporting.md) explain what remains before reviewed updates enter the daily brief.
 
 ## Review, edit and approve locally
 
