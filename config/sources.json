@@ -14,7 +14,7 @@
     "access_notes": "Publisher advertises Local News Headlines RSS. Terms permit personal noncommercial downloads and restrict public/commercial reuse. Local attributed evidence summaries only; no publication permission assumed. No full article bodies or full-content fields.",
     "terms_url": "https://www.opb.org/terms/",
     "expected_update_frequency": "multiple daily",
-    "health_status": "cached",
+    "health_status": "ok",
     "access_status": "feed_validated_reuse_limited",
     "access_validation": {
       "checked_at": "2026-10-11T02:46:45.859113+00:00",
@@ -38,7 +38,7 @@
     "access_notes": "Public publisher-hosted RSS tested. Often brief descriptions: label limited context. Do not fetch paywalled article bodies; no license presumed for republication.",
     "terms_url": "https://www.wweek.com/",
     "expected_update_frequency": "daily",
-    "health_status": "cached",
+    "health_status": "ok",
     "access_status": "feed_validated_reuse_unresolved"
   },
   {
@@ -56,7 +56,7 @@
     "access_notes": "Publisher-hosted RSS tested. Terms say site and feed content is for personal noncommercial use, not further dissemination. Source snippets stay private; Andy authorized sharing original attributed summary drafts in Git. Public/commercial content reuse is not cleared. Strip full-content fields and shorten descriptions. Public reuse is not cleared.",
     "terms_url": "https://www.portlandmercury.com/terms-of-use",
     "expected_update_frequency": "daily",
-    "health_status": "cached",
+    "health_status": "not_modified",
     "access_status": "feed_validated_reuse_limited",
     "access_validation": {
       "checked_at": "2026-10-11T02:50:18.166619+00:00",
@@ -80,7 +80,7 @@
     "access_notes": "Andy reports permission from KGW for automated collection in this written brief. Use the source-specific normal browser User-Agent. Collect public RSS descriptions only, preserve attribution and keep retrieved evidence private. No paywall or authentication bypass. This permission does not extend to OregonLive or other publishers.",
     "terms_url": "https://www.kgw.com/terms",
     "expected_update_frequency": "multiple daily",
-    "health_status": "cached",
+    "health_status": "ok",
     "access_status": "authorized_automated_collection",
     "coverage_note": "Automated collection authorized by KGW permission reported by Andy",
     "access_validation": {
@@ -117,7 +117,7 @@
     "access_notes": "Andy reports permission from Nexstar for automated collection and use of a normal browser User-Agent. Collect public Portland RSS descriptions; keep source evidence private and retain attribution. No paywall or authentication bypass. Nexstar permission does not cover other publishers.",
     "terms_url": "https://www.koin.com/terms-of-use/",
     "expected_update_frequency": "multiple daily",
-    "health_status": "cached",
+    "health_status": "ok",
     "access_status": "authorized_automated_collection",
     "coverage_note": "Automated collection authorized by Nexstar permission reported by Andy",
     "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
@@ -146,7 +146,7 @@
     "access_notes": "Andy reports permission from KPTV for automated collection in this written brief. Use the source-specific normal browser User-Agent. Collect public RSS descriptions only, preserve attribution and keep retrieved evidence private. No paywall or authentication bypass. This permission does not extend to OregonLive or other publishers.",
     "terms_url": "https://www.kptv.com/terms-of-service",
     "expected_update_frequency": "multiple daily",
-    "health_status": "cached",
+    "health_status": "ok",
     "access_status": "authorized_automated_collection",
     "coverage_note": "Automated collection authorized by KPTV permission reported by Andy",
     "access_validation": {
@@ -183,7 +183,7 @@
     "access_notes": "Official RSS discovered through alternate link on /news. Attribution identifies city announcements; claims are not independently verified. No meeting processing.",
     "terms_url": "https://www.portland.gov/help/about/privacy",
     "expected_update_frequency": "daily on business days",
-    "health_status": "cached",
+    "health_status": "ok",
     "access_status": "official_public_source",
     "official_jurisdiction": "portland"
   },
@@ -202,7 +202,7 @@
     "access_notes": "Official HTML news cards with heading links and machine-readable times. No feed assumed. Listing has headlines only; candidates with insufficient evidence are skipped. No meeting or public-record mining.",
     "terms_url": "https://www.multco.us/",
     "expected_update_frequency": "business days",
-    "health_status": "cached",
+    "health_status": "not_modified",
     "access_status": "official_public_source",
     "official_jurisdiction": "multnomah"
   },
@@ -212,33 +212,30 @@
     "url": "https://www.oregonlive.com/arc/outboundfeeds/rss/?outputType=xml",
     "type": "rss",
     "jurisdiction": "Oregon",
-    "enabled": false,
+    "enabled": true,
     "allowed_hosts": [
       "www.oregonlive.com",
       "oregonlive.com"
     ],
     "last_validation_date": "2026-10-10",
-    "access_notes": "Publisher-hosted current RSS was retrieved and parsed (50 items). Discovery hint from a feed directory was verified directly at the publisher. Advance Local User Agreement sections 5.1.4, 5.1.10 and 5.2.1 restrict automated collection and AI use; RSS is subject to the same restrictions. No OregonLive permission reported; keep collection disabled. Never bypass paywalls or access controls.",
+    "access_notes": "Andy reports permission from Advance for automated OregonLive collection for this written brief. Collect short public publisher-hosted RSS descriptions using the configured normal browser User-Agent; retain attribution and keep retrieved evidence private. Previous terms assessment remains in access history alongside this permission exception. No paywall or authentication bypass; permission does not extend to other publishers.",
     "terms_url": "https://www.advancelocal.com/advancelocalUserAgreement/user-agreement.html",
     "expected_update_frequency": "multiple daily",
-    "health_status": "disabled",
-    "access_status": "permission_required",
-    "coverage_note": "Disabled: RSS verified; Advance Local permission required for automated collection and AI use",
+    "health_status": "ok",
+    "access_status": "authorized_automated_collection",
+    "coverage_note": "Automated OregonLive collection authorized by Advance permission reported by Andy",
     "access_validation": {
-      "checked_at": "2026-10-11T02:57:12.314848+00:00",
-      "status": "permission_required",
+      "checked_at": "2026-10-11T03:03:23.272986+00:00",
+      "status": "authorized_automated_collection",
+      "basis": "Andy reports receiving Advance permission to automate collection from OregonLive in this session.",
       "terms_evidence_url": "https://www.advancelocal.com/advancelocalUserAgreement/user-agreement.html",
+      "permission_origin": "user_attestation",
+      "permission_scope": "Advance; OregonLive automated collection for this written brief",
+      "independently_verified_permission": false,
       "feed_verified": true,
-      "feed_item_count": 50,
-      "discovery_hint_url": "https://rss.feedspot.com/oregon_news_rss_feeds/",
       "verified_feed_url": "https://www.oregonlive.com/arc/outboundfeeds/rss/?outputType=xml",
-      "permission_origin": null,
-      "terms_sections": [
-        "5.1.4",
-        "5.1.10",
-        "5.2.1"
-      ],
-      "terms_note": "Publisher RSS is explicitly subject to the same restrictions; automated collection and AI use require prior consent."
+      "feed_checked_at": "2026-10-11T03:03:30.252769+00:00",
+      "feed_item_count": 50
     },
     "access_history": [
       {
@@ -247,8 +244,25 @@
         "terms_evidence_url": "https://www.oregonlive.com/terms/",
         "terms_http_status": 403,
         "feed_verified": false
+      },
+      {
+        "checked_at": "2026-10-11T02:57:12.314848+00:00",
+        "status": "permission_required",
+        "terms_evidence_url": "https://www.advancelocal.com/advancelocalUserAgreement/user-agreement.html",
+        "feed_verified": true,
+        "feed_item_count": 50,
+        "discovery_hint_url": "https://rss.feedspot.com/oregon_news_rss_feeds/",
+        "verified_feed_url": "https://www.oregonlive.com/arc/outboundfeeds/rss/?outputType=xml",
+        "permission_origin": null,
+        "terms_sections": [
+          "5.1.4",
+          "5.1.10",
+          "5.2.1"
+        ],
+        "terms_note": "Publisher RSS is explicitly subject to the same restrictions; automated collection and AI use require prior consent."
       }
-    ]
+    ],
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
   },
   {
     "id": "portland-zoning",
@@ -264,7 +278,7 @@
       "portland.gov"
     ],
     "last_validation_date": "2026-10-10",
-    "health_status": "cached",
+    "health_status": "ok",
     "access_status": "official_public_feed",
     "access_notes": "Official RSS link discovered in the department news page. Original attributed summaries from descriptive feed evidence only; thin address-only land-use notices remain structured candidates, not invented prose. The civic filings adapter remains a separate bounded sample.",
     "terms_url": "https://www.portland.gov/help/about/privacy",
@@ -290,7 +304,7 @@
       "portland.gov"
     ],
     "last_validation_date": "2026-10-10",
-    "health_status": "cached",
+    "health_status": "ok",
     "access_status": "official_public_feed",
     "access_notes": "Official RSS link discovered in the department news page. Original attributed summaries from descriptive feed evidence only; thin address-only land-use notices remain structured candidates, not invented prose. The civic filings adapter remains a separate bounded sample.",
     "terms_url": "https://www.portland.gov/help/about/privacy",
