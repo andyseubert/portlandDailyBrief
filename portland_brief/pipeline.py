@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from .fetching import Fetcher
 from .collection import NewsBuffer
 from .selection import select
-from .sources import collect
+from .sources import collect, source_enabled
 from .storage import Store
 from .summarization import summarize
 from .validation import numbers, suspicious
@@ -50,7 +50,7 @@ def run(root, settings, registry, force=False, now=None, summarizer=summarize):
             doc.update(source_health=health, all_evidence=[x.to_dict() for x in items])
             failures = [h for h in health if h["status"] in {"failed", "stale_cache"}]
             doc["gaps"] += [f"{h['name']}: live source unavailable; excluded from this brief ({h.get('error', 'failure')})." for h in failures]
-            doc["gaps"] += [f"{h['name']} is disabled pending source/access validation." for h in health if h["status"] == "disabled"]
+            doc["gaps"] += [f"{h['name']}: {h.get('coverage_note', 'disabled pending source/access validation')}." for h in health if h["status"] == "disabled"]
             if not any(h["status"] in {"ok", "cached", "not_modified"} for h in health):
                 raise RuntimeError("All news sources failed; previous successful draft preserved")
             buffer = NewsBuffer(data / "news-collection.sqlite3")
@@ -60,6 +60,9 @@ def run(root, settings, registry, force=False, now=None, summarizer=summarize):
                 previously_used = buffer.used_before(items, date)
             finally:
                 buffer.close()
+            enabled_ids = {s['id'] for s in registry if source_enabled(s)}
+            buffered = [i for i in buffered if i.source_id in enabled_ids]
+            late_ids = [eid for eid in late_ids if any(i.id == eid for i in buffered)]
             # Keep undated/current invalid items for the existing explicit exclusion accounting.
             items_by_id = {i.id: i for i in items if i.id not in previously_used}
             items_by_id.update({i.id: i for i in buffered})

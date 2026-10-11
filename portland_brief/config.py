@@ -41,4 +41,6 @@ def load_config(root: Path):
         raise ValueError("window_hours must be between 0 and 168")
     if len({s["id"] for s in sources}) != len(sources):
         raise ValueError("Source IDs must be unique")
+    settings['official_local_source_ids'] = [s['id'] for s in sources if s.get('official_jurisdiction') in {'portland', 'multnomah'}]
+    settings['source_balance_groups'] = {s['id']: s.get('source_group', s['id']) for s in sources}
     return settings, sources

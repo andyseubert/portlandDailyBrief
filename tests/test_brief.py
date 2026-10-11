@@ -10,13 +10,14 @@ from urllib.error import HTTPError
 from zoneinfo import ZoneInfo
 
 from portland_brief.config import load_config
+from portland_brief.collection import NewsBuffer
 from portland_brief.editorial import export_approved, apply_edits
 from portland_brief.fetching import Fetcher, minimize_feed
 from portland_brief.pipeline import run, run_lock
 from portland_brief.records import Evidence, canonical_url, parse_time, safe_url
 from portland_brief.rendering import html, markdown, write_draft
 from portland_brief.selection import select, overlapping, relevant
-from portland_brief.sources import normalize_rss
+from portland_brief.sources import normalize_rss, collect, source_enabled
 from portland_brief.storage import Store
 from portland_brief.validation import supporting_spans, validate_story
 from portland_brief.weather import get_weather
@@ -169,6 +170,34 @@ class SourceAndSelectionTests(unittest.TestCase):
         items, _ = normalize_rss(data, source, NOW.isoformat(), 30)
         self.assertEqual(items[0].text, "Short public description")
 
+    def test_permission_required_blocks_collection_and_user_permission_enables_it(self):
+        source = {'id':'koin','name':'KOIN','url':'https://www.koin.com/news/portland/feed/',
+                  'type':'rss','enabled':True,'allowed_hosts':['www.koin.com'],
+                  'access_status':'permission_required','access_notes':'Permission required',
+                  'coverage_note':'Publisher permission required','user_agent':'Mozilla/5.0'}
+        class Fake:
+            calls = []
+            def get(self, url, kind, **kwargs):
+                self.calls.append((url, kwargs))
+                return b'<rss><channel><item><title>Portland housing development</title><link>https://www.koin.com/news/portland/housing/</link><description>Officials scheduled a public hearing for a proposed housing development in Portland this month.</description><pubDate>Fri, 09 Oct 2026 18:00:00 -0700</pubDate></item></channel></rss>', {'status':'ok','fetched_at':NOW.isoformat()}
+        fetcher = Fake()
+        items, health = collect(fetcher,[source],self.settings)
+        self.assertEqual(items,[]); self.assertEqual(fetcher.calls,[])
+        self.assertEqual(health[0]['coverage_note'],'Publisher permission required')
+        source['access_status']='authorized_automated_collection'
+        self.assertTrue(source_enabled(source))
+        items, health = collect(fetcher,[source],self.settings)
+        self.assertEqual(len(items),1)
+        self.assertEqual(fetcher.calls[0][1],{'user_agent':'Mozilla/5.0'})
+
+    def test_department_feeds_share_city_source_balance(self):
+        settings={**self.settings,'per_source_limit':1}
+        items=[evidence(source_id='portland-zoning',title='Land use proposal LU 26-071183 AD'),
+               evidence(id='second',source_id='portland-planning',title='Comprehensive plan hearing',url='https://www.portland.gov/another')]
+        selected,stats=select(items,NOW,settings)
+        self.assertEqual(len(selected),1)
+        self.assertEqual(stats['excluded']['source_balance'],1)
+
     def test_xml_entities_rejected(self):
         xml = b'<!DOCTYPE rss [<!ENTITY x SYSTEM "file:///etc/passwd">]><rss><channel><title>&x;</title></channel></rss>'
         with self.assertRaises(Exception):
@@ -283,6 +312,35 @@ class RenderingAndStorageTests(unittest.TestCase):
             d, _ = run(self.root, self.settings, [], now=NOW, summarizer=lambda *a: self.fail("Model should not receive malicious source"))
         self.assertFalse(d["stories"])
         self.assertTrue(any("quarantined" in g for g in d["gaps"]))
+
+    def test_disabled_source_cannot_return_from_collection_buffer(self):
+        blocked=evidence(id='blocked',source_id='closed',title='Portland zoning proposal',url='https://www.portland.gov/blocked')
+        buffer=NewsBuffer(self.root/'data/news-collection.sqlite3')
+        buffer.record([blocked],[{'source_id':'closed','status':'ok'}],NOW-timedelta(minutes=10));buffer.close()
+        e=evidence(); health=[{'source_id':'portland','name':'City','status':'ok'},
+                            {'source_id':'closed','name':'Closed source','status':'disabled','coverage_note':'Publisher permission required'}]
+        registry=[{'id':'portland','enabled':True},{'id':'closed','enabled':False,'access_status':'permission_required'}]
+        def summarize(items,*args):
+            self.assertNotIn('blocked',[i.id for i in items])
+            return [validate_story(raw_story(e),e)],[],doc()['usage']
+        with patch('portland_brief.pipeline.collect',return_value=([e],health)),patch('portland_brief.pipeline.get_weather',return_value=doc()['weather']):
+            d,_=run(self.root,self.settings,registry,now=NOW,summarizer=summarize)
+        self.assertNotIn('blocked',d['evidence'])
+        self.assertIn('Closed source: Publisher permission required.',d['gaps'])
+
+    def test_source_specific_browser_user_agent_reaches_http_request(self):
+        seen=[]
+        class Response:
+            url='https://www.koin.com/example'
+            headers={}
+            def __enter__(self): return self
+            def __exit__(self,*args): pass
+            def read(self,limit): return b'{}'
+        def opening(request,**kwargs):
+            seen.append(request.get_header('User-agent')); return Response()
+        with patch('portland_brief.fetching.urlopen',side_effect=opening):
+            Fetcher(self.root,self.settings,True).get('https://www.koin.com/example',user_agent='Mozilla/5.0')
+        self.assertEqual(seen,['Mozilla/5.0'])
 
 
 class WeatherTests(unittest.TestCase):

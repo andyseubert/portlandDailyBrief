@@ -14,7 +14,14 @@
     "access_notes": "Publisher advertises Local News Headlines RSS. Terms permit personal noncommercial downloads and restrict public/commercial reuse. Local attributed evidence summaries only; no publication permission assumed. No full article bodies or full-content fields.",
     "terms_url": "https://www.opb.org/terms/",
     "expected_update_frequency": "multiple daily",
-    "health_status": "ok"
+    "health_status": "cached",
+    "access_status": "feed_validated_reuse_limited",
+    "access_validation": {
+      "checked_at": "2026-10-11T02:46:45.859113+00:00",
+      "status": "feed_validated_reuse_limited",
+      "terms_evidence_url": "https://www.opb.org/terms/",
+      "notes": "Personal noncommercial downloading described; public reuse restricted. Original attributed summaries only, no source text republication; no commercial license presumed."
+    }
   },
   {
     "id": "wweek",
@@ -31,7 +38,8 @@
     "access_notes": "Public publisher-hosted RSS tested. Often brief descriptions: label limited context. Do not fetch paywalled article bodies; no license presumed for republication.",
     "terms_url": "https://www.wweek.com/",
     "expected_update_frequency": "daily",
-    "health_status": "ok"
+    "health_status": "cached",
+    "access_status": "feed_validated_reuse_unresolved"
   },
   {
     "id": "mercury",
@@ -45,10 +53,17 @@
       "portlandmercury.com"
     ],
     "last_validation_date": "2026-10-10",
-    "access_notes": "Publisher-hosted RSS tested. Terms say site and feed content is for personal noncommercial use, not further dissemination. This build stays local/private. Strip full-content fields and shorten descriptions. Public reuse is not cleared.",
+    "access_notes": "Publisher-hosted RSS tested. Terms say site and feed content is for personal noncommercial use, not further dissemination. Source snippets stay private; Andy authorized sharing original attributed summary drafts in Git. Public/commercial content reuse is not cleared. Strip full-content fields and shorten descriptions. Public reuse is not cleared.",
     "terms_url": "https://www.portlandmercury.com/terms-of-use",
     "expected_update_frequency": "daily",
-    "health_status": "not_modified"
+    "health_status": "cached",
+    "access_status": "feed_validated_reuse_limited",
+    "access_validation": {
+      "checked_at": "2026-10-11T02:50:18.166619+00:00",
+      "status": "feed_validated_reuse_limited",
+      "terms_evidence_url": "https://www.portlandmercury.com/terms-of-use",
+      "notes": "Feed validated; current terms endpoint inaccessible in this check. Prior personal/noncommercial feed restrictions remain recorded; source text stays private and no public/commercial license is presumed."
+    }
   },
   {
     "id": "kgw",
@@ -65,7 +80,15 @@
     "access_notes": "RSS endpoint responds, but terms at /terms prohibit automated requests/scraping absent an applicable exception. Disabled pending permission/clarification; do not assume RSS overrides the terms.",
     "terms_url": "https://www.kgw.com/terms",
     "expected_update_frequency": "multiple daily",
-    "health_status": "disabled"
+    "health_status": "disabled",
+    "access_status": "permission_required",
+    "coverage_note": "Disabled: publisher permission required for automated collection",
+    "access_validation": {
+      "checked_at": "2026-10-11T02:46:45.859113+00:00",
+      "status": "permission_required",
+      "terms_evidence_url": "https://www.kgw.com/terms",
+      "permission_origin": null
+    }
   },
   {
     "id": "koin",
@@ -79,10 +102,22 @@
       "koin.com"
     ],
     "last_validation_date": "2026-10-10",
-    "access_notes": "Public Portland-category RSS tested. Article bodies and terms endpoint returned HTTP 403; no bypass. Use only accessible feed descriptions with limited-context labels; public reuse/AI-specific terms unresolved.",
+    "access_notes": "Andy reports permission from Nexstar for automated collection and use of a normal browser User-Agent. Collect public Portland RSS descriptions; keep source evidence private and retain attribution. No paywall or authentication bypass. Nexstar permission does not cover other publishers.",
     "terms_url": "https://www.koin.com/terms-of-use/",
     "expected_update_frequency": "multiple daily",
-    "health_status": "ok"
+    "health_status": "cached",
+    "access_status": "authorized_automated_collection",
+    "coverage_note": "Automated collection authorized by Nexstar permission reported by Andy",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
+    "access_validation": {
+      "checked_at": "2026-10-11T02:46:45.859113+00:00",
+      "status": "authorized_automated_collection",
+      "basis": "Andy reports Nexstar permission for automated collection and a normal browser User-Agent; instruction recorded in this session.",
+      "terms_evidence_url": "https://www.nexstar.tv/terms-of-use/",
+      "permission_origin": "user_attestation",
+      "permission_scope": "Nexstar; KOIN automated collection for this written brief",
+      "independently_verified_permission": false
+    }
   },
   {
     "id": "kptv",
@@ -99,7 +134,15 @@
     "access_notes": "Terms prohibit automated collection and using station content as input for AI/ML without express written consent. Disabled; technical feed availability is not permission.",
     "terms_url": "https://www.kptv.com/terms-of-service",
     "expected_update_frequency": "multiple daily",
-    "health_status": "disabled"
+    "health_status": "disabled",
+    "access_status": "permission_required",
+    "coverage_note": "Disabled: publisher permission required for automated collection",
+    "access_validation": {
+      "checked_at": "2026-10-11T02:46:45.859113+00:00",
+      "status": "permission_required",
+      "terms_evidence_url": "https://www.kptv.com/terms-of-service",
+      "permission_origin": null
+    }
   },
   {
     "id": "portland",
@@ -116,7 +159,9 @@
     "access_notes": "Official RSS discovered through alternate link on /news. Attribution identifies city announcements; claims are not independently verified. No meeting processing.",
     "terms_url": "https://www.portland.gov/help/about/privacy",
     "expected_update_frequency": "daily on business days",
-    "health_status": "ok"
+    "health_status": "cached",
+    "access_status": "official_public_source",
+    "official_jurisdiction": "portland"
   },
   {
     "id": "multnomah",
@@ -133,7 +178,9 @@
     "access_notes": "Official HTML news cards with heading links and machine-readable times. No feed assumed. Listing has headlines only; candidates with insufficient evidence are skipped. No meeting or public-record mining.",
     "terms_url": "https://www.multco.us/",
     "expected_update_frequency": "business days",
-    "health_status": "not_modified"
+    "health_status": "cached",
+    "access_status": "official_public_source",
+    "official_jurisdiction": "multnomah"
   },
   {
     "id": "oregonlive",
@@ -150,6 +197,67 @@
     "access_notes": "Candidate only. Disabled until a legitimate current feed or permitted endpoint and terms are verified. No paywall bypass.",
     "terms_url": "https://www.oregonlive.com/terms/",
     "expected_update_frequency": "multiple daily",
-    "health_status": "disabled"
+    "health_status": "disabled",
+    "access_status": "endpoint_unvalidated",
+    "coverage_note": "Disabled: no verified usable feed; terms page returned HTTP 403",
+    "access_validation": {
+      "checked_at": "2026-10-11T02:46:45.859113+00:00",
+      "status": "endpoint_unvalidated",
+      "terms_evidence_url": "https://www.oregonlive.com/terms/",
+      "terms_http_status": 403,
+      "feed_verified": false
+    }
+  },
+  {
+    "id": "portland-zoning",
+    "name": "Portland Zoning and Land Use",
+    "url": "https://www.portland.gov/ppd/zoning-land-use/news/rss",
+    "type": "rss",
+    "jurisdiction": "Portland",
+    "official_jurisdiction": "portland",
+    "source_group": "portland",
+    "enabled": true,
+    "allowed_hosts": [
+      "www.portland.gov",
+      "portland.gov"
+    ],
+    "last_validation_date": "2026-10-10",
+    "health_status": "cached",
+    "access_status": "official_public_feed",
+    "access_notes": "Official RSS link discovered in the department news page. Original attributed summaries from descriptive feed evidence only; thin address-only land-use notices remain structured candidates, not invented prose. The civic filings adapter remains a separate bounded sample.",
+    "terms_url": "https://www.portland.gov/help/about/privacy",
+    "expected_update_frequency": "business days",
+    "access_validation": {
+      "checked_at": "2026-10-11T02:46:45.859113+00:00",
+      "status": "official_public_feed",
+      "discovery_url": "https://www.portland.gov/ppd/zoning-land-use/news",
+      "discovery_method": "Published application/rss+xml alternate link; feed parsed successfully."
+    }
+  },
+  {
+    "id": "portland-planning",
+    "name": "Portland Planning",
+    "url": "https://www.portland.gov/bps/planning/news/rss",
+    "type": "rss",
+    "jurisdiction": "Portland",
+    "official_jurisdiction": "portland",
+    "source_group": "portland",
+    "enabled": true,
+    "allowed_hosts": [
+      "www.portland.gov",
+      "portland.gov"
+    ],
+    "last_validation_date": "2026-10-10",
+    "health_status": "cached",
+    "access_status": "official_public_feed",
+    "access_notes": "Official RSS link discovered in the department news page. Original attributed summaries from descriptive feed evidence only; thin address-only land-use notices remain structured candidates, not invented prose. The civic filings adapter remains a separate bounded sample.",
+    "terms_url": "https://www.portland.gov/help/about/privacy",
+    "expected_update_frequency": "business days",
+    "access_validation": {
+      "checked_at": "2026-10-11T02:46:45.859113+00:00",
+      "status": "official_public_feed",
+      "discovery_url": "https://www.portland.gov/bps/planning/news",
+      "discovery_method": "Published application/rss+xml alternate link; feed parsed successfully."
+    }
   }
 ]

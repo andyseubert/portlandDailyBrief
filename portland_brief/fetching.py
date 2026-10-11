@@ -47,7 +47,7 @@ class Fetcher:
         self.cache.mkdir(parents=True, exist_ok=True)
         self.user_agent = os.getenv("PORTLAND_BRIEF_USER_AGENT", "PortlandDailyBrief/0.1 (local personal news research)")
 
-    def get(self, url: str, kind: str = "json"):
+    def get(self, url: str, kind: str = "json", user_agent: str | None = None):
         url = safe_url(url)
         key = digest(url)
         bodyfile, metafile = self.cache / (key + ".bin"), self.cache / (key + ".json")
@@ -61,7 +61,10 @@ class Fetcher:
         age = now.timestamp() - meta.get("checked_epoch", 0)
         if meta and not self.force and age < self.settings["cache_ttl_seconds"]:
             return bodyfile.read_bytes(), {**meta, "status": "cached", "url": url}
-        headers = {"User-Agent": self.user_agent, "Accept": "application/geo+json, application/json" if kind == "json" else "application/rss+xml, application/xml, text/html"}
+        agent = user_agent or self.user_agent
+        if '\r' in agent or '\n' in agent:
+            raise ValueError('User-Agent must be a single header value')
+        headers = {"User-Agent": agent, "Accept": "application/geo+json, application/json" if kind == "json" else "application/rss+xml, application/xml, text/html"}
         for keyname, headername in [("etag", "If-None-Match"), ("last_modified", "If-Modified-Since")]:
             if meta.get(keyname):
                 headers[headername] = meta[keyname]
