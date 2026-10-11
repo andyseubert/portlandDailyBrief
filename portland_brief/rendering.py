@@ -62,6 +62,10 @@ def markdown(doc, repository=False):
             lines += ["", "Review note: overlapping source descriptions contain different numbers; compare their scope and timing."]
     if not doc["stories"]:
         lines += ["", "No supported Portland story summaries were produced for this window. No quota was filled."]
+    if doc.get('development_watch'):
+        lines += ['', '## Development Watch', '', 'Editor-reviewed permit records. Initial discoveries are a baseline, not proof of new activity today.', '']
+        for project in doc['development_watch']:
+            lines += [f"### Permit {project['folder_id']}", '', *[esc(sentence) for sentence in project['sentences']], '', f"[Official permit]({project['source_url']}) · Reviewed version `{project['version_id']}`", '', 'Construction, completion and business opening remain unverified.', '']
     lines += ["", "## Run information", "", f"Local model: {esc(doc['usage']['model'])}. Input tokens: {doc['usage']['input_tokens']}; output tokens: {doc['usage']['output_tokens']}; model attempts: {doc['usage']['attempts']}. API cost: $0.", "", "Publishing disabled. Scheduling " + ('enabled' if doc.get('scheduling') else 'disabled') + ". Source health and evidence are retained in the private run record.", ""]
     result = "\n".join(lines)
     if repository:
@@ -95,6 +99,10 @@ def html(doc, root_index=False, repository=False):
         content.append("</article>")
     if not doc["stories"]:
         content.append("<p>No supported stories were produced for this window; no quota was filled.</p>")
+    if doc.get('development_watch'):
+        content.append('<h2>Development Watch</h2><p>Editor-reviewed permit records. Initial discoveries are a baseline, not proof of new activity today.</p>')
+        for project in doc['development_watch']:
+            content.append('<article><h3>Permit '+str(project['folder_id'])+'</h3>'+''.join('<p>'+e(sentence)+'</p>' for sentence in project['sentences'])+'<p><a href="'+e(project['source_url'], quote=True)+'">Official permit</a> · Reviewed version '+e(project['version_id'])+'</p><p>Construction, completion and business opening remain unverified.</p></article>')
     operation = 'Publishing disabled; local scheduling enabled.' if doc.get('scheduling') else 'Publishing and scheduling disabled.'
     content.append(f'<footer class="meta">Local model: {e(doc["usage"]["model"])}. Input/output tokens: {doc["usage"]["input_tokens"]}/{doc["usage"]["output_tokens"]}. API cost $0. {operation}</footer>')
     nav = '<a href="archive/index.html">Dated drafts</a>' if root_index else '<a href="../../index.html">Latest draft</a><a href="../index.html">Dated drafts</a>'

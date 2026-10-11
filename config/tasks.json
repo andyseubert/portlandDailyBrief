@@ -61,6 +61,8 @@
     "model": null,
     "max_pages_per_scan": 4,
     "coverage_priority": "city_and_county_development_and_zoning",
+    "notice_collection": {"max_pages": 4, "max_notices": 100, "attachments": true},
+    "research_focused_projects": true,
     "development_focus": {
       "minimum_stories": 4,
       "lookback_days": 365,

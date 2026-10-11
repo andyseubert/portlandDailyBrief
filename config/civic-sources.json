@@ -140,12 +140,24 @@
     "type": "land_use_notices",
     "url": "https://www.portland.gov/ppd/zoning-land-use/news/notices",
     "official_entry": "https://www.portland.gov/ppd/land-use-notices",
-    "method": "official dated notices and linked case documents",
+    "method": "Paged official notice cards; structured case/information classification; isolated linked-PDF extraction",
     "cadence": "daily",
     "enabled": true,
-    "health_status": "fetched_and_parsed",
-    "last_check_at": "2026-10-10T03:50:47.827016+00:00",
-    "last_successful_check_at": "2026-10-10T03:50:47.827016+00:00"
+    "health_status": "listed_inventory_reconciled_attachment_review_partial",
+    "last_check_at": "2026-10-11T04:33:51.497909+00:00",
+    "last_successful_check_at": "2026-10-11T04:33:51.497909+00:00",
+    "coverage": {
+      "expected_notices": 41,
+      "discovered_notices": 41,
+      "processed_notices": 41,
+      "inventory_complete": true,
+      "complete": true,
+      "case_notices": 35,
+      "information_documents": 6,
+      "attachment_processing_complete": false,
+      "scope": "Currently listed city land-use notices; not historical land-use cases or neighborhood-contact notices"
+    },
+    "notes": "Four-page/100-notice configurable bound. Official /documents/.../download attachments supported. Scanned/empty pages require review. Current index only; no historical case or neighborhood-contact completeness."
   },
   {
     "id": "portland-neighborhood-contact",
@@ -305,8 +317,8 @@
     "enabled": true,
     "health_status": "live_scan_validated",
     "notes": "Whole CO new-construction records in configured creation-date lookback. Source NUMBSTORIES may be zero/missing or conflict with description; do not use zoning capacity as proposed height. No private project/parent-permit merging by title or address. Review drafts only; not comprehensive city/county development coverage.",
-    "last_check_at": "2026-10-11T03:25:15.524832+00:00",
-    "last_successful_check_at": "2026-10-11T03:25:15.524832+00:00",
+    "last_check_at": "2026-10-11T04:34:43.981654+00:00",
+    "last_successful_check_at": "2026-10-11T04:34:43.981654+00:00",
     "coverage": {
       "source_id": "portland-commercial-construction",
       "expected_records": 141,
@@ -317,7 +329,7 @@
       "created_since": "2025-10-10",
       "scope": "Commercial Construction GIS layer within creation-date lookback; not all city development",
       "status": "processed",
-      "checked_at": "2026-10-11T03:25:15.524832+00:00",
+      "checked_at": "2026-10-11T04:34:43.981654+00:00",
       "screening_counts": {
         "needs_evidence": 62,
         "excluded": 76,

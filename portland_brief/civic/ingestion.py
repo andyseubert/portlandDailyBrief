@@ -324,9 +324,10 @@ def extract_attachment(store, document_id):
     for page in extracted['pages']:
         if page['text'].strip():
             passage_ids.append(store.passage(source['id'], 'PDF page ' + str(page['page']), page['text'], 'official_attachment'))
-    store.upsert('documents', **{**dict(row), 'data': {**metadata, 'content_status': 'text_extracted' if passage_ids else 'scan_requires_review', 'extraction_version': extracted['parser_version'], 'page_passages': passage_ids, 'pages': len(extracted['pages']), 'review_warnings': warnings}})
+    empty_pages = [page['page'] for page in extracted['pages'] if not page['text'].strip()]
+    store.upsert('documents', **{**dict(row), 'data': {**metadata, 'content_status': 'text_extracted' if passage_ids else 'scan_requires_review', 'extraction_version': extracted['parser_version'], 'page_passages': passage_ids, 'pages': len(extracted['pages']), 'empty_or_scan_pages': empty_pages, 'review_warnings': warnings}})
     store.commit()
-    return {'document_id': document_id, 'pages': len(extracted['pages']), 'passages': passage_ids, 'ocr': False, 'warnings': warnings}
+    return {'document_id': document_id, 'pages': len(extracted['pages']), 'passages': passage_ids, 'empty_or_scan_pages': empty_pages, 'ocr': False, 'warnings': warnings}
 
 
 def ingest_county_agenda(store, data, url):

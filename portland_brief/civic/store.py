@@ -68,6 +68,11 @@ class CivicStore:
                     self.db.execute("UPDATE meeting_reports SET state='needs_review' WHERE id=?", (report["id"],))
                     if report['state'] == 'approved':
                         self.db.execute('INSERT INTO report_audit(report_id,version_id,action,actor,at,review_seconds,note) VALUES(?,?,?,?,?,?,?)', (report['id'], report['current_version'], 'approval_invalidated', 'source_version_monitor', stamp(), 0, 'Material source change at ' + url))
+            for report in self.rows('development_reports'):
+                bundle = self.db.execute('SELECT evidence_bundle FROM development_report_versions WHERE id=?', (report['current_version'],)).fetchone()
+                if bundle and url in json.loads(bundle[0]) and report['state'] == 'approved':
+                    self.db.execute("UPDATE development_reports SET state='needs_review' WHERE id=?", (report['id'],))
+                    self.db.execute('INSERT INTO development_review_audit(report_id,version_id,action,actor,at,review_seconds,note) VALUES(?,?,?,?,?,?,?)', (report['id'], report['current_version'], 'approval_invalidated', 'source_version_monitor', stamp(), 0, 'Material source change at ' + url))
         self.db.commit()
         return version_id, changed
 

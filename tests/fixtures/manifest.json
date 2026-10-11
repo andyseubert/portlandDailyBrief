@@ -89,5 +89,70 @@
     "retrieved_at": "2026-10-11T03:20:14.481005+00:00",
     "parser_version": "commercial-intake-crosscheck/1",
     "verified_note": "Six stories, 127 homes, retail and Under Review agree; intake street address conflicts with GIS address, requiring review."
+  },
+  "portland-division-folder-details.json": {
+    "url": "https://www.portlandmaps.com/arcgis/rest/services/Public/BDS_Permit/MapServer/2/query?f=json&where=FOLDERKEY+%3D+5243125&outFields=FOLDERKEY%2CPROPERTYKEY%2CSTATEIDKEY%2CNEIGHBORHOOD%2CGIS_LOCATION_TYPE%2CTRIM_URL&outSR=4326",
+    "sha256": "bc63cdde5e1d33a13f29c3f657f7f743d82ba8bd1fe93c16b13011c5255edbf9",
+    "retrieved_at": "2026-10-11T04:30:24.675545+00:00",
+    "retrieved_local_date": "2026-10-10",
+    "parser_version": "development-research/folder-details/1",
+    "manually_checked": "Exact folder 5243125 / property R184111 and state-ID match. Pending address change retained; related MT permit is a separate record."
+  },
+  "portland-division-building-report.html": {
+    "url": "https://www.portlandmaps.com/reports/index.cfm?action=building-unit&start_date=01%2F01%2F2025&end_date=10%2F10%2F2026&search_field=IVR_NUMBER&search_value=5243125",
+    "sha256": "a229e77f802d9ab21b41644b3b74d22cad98b5ea1777a00c5d3b4f3046221acb",
+    "retrieved_at": "2026-10-11T04:30:24.837998+00:00",
+    "retrieved_local_date": "2026-10-10",
+    "parser_version": "development-research/building-report/1",
+    "manually_checked": "Exact folder 5243125 / property R184111 and state-ID match. Pending address change retained; related MT permit is a separate record."
+  },
+  "portland-division-address-change-register.html": {
+    "url": "https://www.portlandmaps.com/reports/index.cfm?action=assessor-multnomah&start_date=01%2F01%2F2025&end_date=10%2F10%2F2026&search_field=TAXLOT_R_NUMBER&search_value=R184111",
+    "sha256": "5164e7e77bfe60f3f0baed64d2b8ac41bc6d4f582d000d173165751ccc7e3ebc",
+    "retrieved_at": "2026-10-11T04:30:25.122820+00:00",
+    "retrieved_local_date": "2026-10-10",
+    "parser_version": "development-research/address-change-register/1",
+    "manually_checked": "Exact folder 5243125 / property R184111 and state-ID match. Pending address change retained; related MT permit is a separate record."
+  },
+  "portland-division-related-permit.json": {
+    "url": "https://www.portlandmaps.com/arcgis/rest/services/Public/BDS_Permit/MapServer/22/query?f=json&where=APPLICATION+%3D+%272026-021266-000-00-MT%27&outFields=FOLDERKEY%2CPROPERTYKEY%2CAPPLICATION%2CPERMIT%2CSTATUS%2CHOUSE%2CDIRECTION%2CPROPSTREET%2CSTREETTYPE%2CCITY%2CCOUNTY%2CTYPE%2CWORK_DESCRIPTION%2CDESCRIPTION%2CISSUED%2CFINALED%2CNEIGHBORHOOD%2CGIS_LOCATION_TYPE%2CGIS_PROCESS_DATE%2CPORTLAND_MAPS_URL&outSR=4326&resultRecordCount=100",
+    "sha256": "1885e590203af036b4c3f574207f5ae5da16cccbd285056b50a154babab3df3c",
+    "retrieved_at": "2026-10-11T04:30:25.792025+00:00",
+    "retrieved_local_date": "2026-10-10",
+    "parser_version": "development-research/related-permit/1",
+    "manually_checked": "Exact folder 5243125 / property R184111 and state-ID match. Pending address change retained; related MT permit is a separate record.",
+    "tested_parser_version": "development-research/related-permit/2"
+  },
+  "portland-notice-index-0.html": {
+    "url": "https://www.portland.gov/ppd/zoning-land-use/news/notices",
+    "sha256": "794526194d24fc3cc67b73a8d2be6f11141cbd9ea242e9327d753cb9da671e7c",
+    "retrieved_at": "2026-10-11T04:25:46.625257+00:00",
+    "retrieved_local_date": "2026-10-10",
+    "parser_version": "land-use-index-v2",
+    "manually_checked": "Official listed total 41; 20,20,1 cards; explicit Next page link."
+  },
+  "portland-notice-index-1.html": {
+    "url": "https://www.portland.gov/ppd/zoning-land-use/news/notices?page=1",
+    "sha256": "198601ffbf58f6ae97ced8028274856cf2b2aff6c04ebf2638534e726a7f568a",
+    "retrieved_at": "2026-10-11T04:25:47.771298+00:00",
+    "retrieved_local_date": "2026-10-10",
+    "parser_version": "land-use-index-v2",
+    "manually_checked": "Official listed total 41; 20,20,1 cards; explicit Next page link."
+  },
+  "portland-notice-index-2.html": {
+    "url": "https://www.portland.gov/ppd/zoning-land-use/news/notices?page=2",
+    "sha256": "5609ec35e486c44bd83b7302e3abe4d77eeb0588df1461728873b69648f90edf",
+    "retrieved_at": "2026-10-11T04:25:49.176793+00:00",
+    "retrieved_local_date": "2026-10-10",
+    "parser_version": "land-use-index-v2",
+    "manually_checked": "Official listed total 41; 20,20,1 cards; explicit Next page link."
+  },
+  "portland-demolition-delay.html": {
+    "url": "https://www.portland.gov/ppd/zoning-land-use/news/2026/7/30/notice-demolition-delay-pr-26-053039-hri",
+    "sha256": "02a8dc85a0e035da65d9c34410420e4f68c1047835592fe46a664c67d4453a76",
+    "retrieved_at": "2026-10-11T04:29:28.592879+00:00",
+    "retrieved_local_date": "2026-10-10",
+    "parser_version": "structured-filing-v3",
+    "manually_checked": "Official PR identifier is separate from LU cases; demolition delay does not establish demolition or construction."
   }
 }

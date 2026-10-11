@@ -46,6 +46,13 @@ def run(root, settings, registry, force=False, now=None, summarizer=summarize):
         doc = {"title": settings["title"], "date": date, "generated_at": datetime.now(timezone.utc).isoformat(), "as_of": now.isoformat(), "timezone": settings["timezone"], "window_hours": settings["window_hours"], "status": "running", "run_id": run_id, "stories": [], "gaps": [], "evidence": {}, "usage": {"provider": settings["provider"], "model": settings["model"], "input_tokens": 0, "output_tokens": 0, "attempts": 0, "api_cost_usd": 0.0}, "generator_version": "0.1.0", "public_publishing": False, "scheduling": settings.get('scheduling', False)}
         try:
             fetcher = Fetcher(root, settings, force)
+            from .civic.store import CivicStore
+            from .civic.development_reports import approved_watch
+            civic = CivicStore(data / 'civic.sqlite3')
+            try:
+                doc['development_watch'] = approved_watch(civic, now, settings['window_hours'], min(3, settings['story_limit']))
+            finally:
+                civic.close()
             items, health = collect(fetcher, registry, settings)
             doc.update(source_health=health, all_evidence=[x.to_dict() for x in items])
             failures = [h for h in health if h["status"] in {"failed", "stale_cache"}]
@@ -97,7 +104,7 @@ def run(root, settings, registry, force=False, now=None, summarizer=summarize):
                     related = selection["overlapping_evidence_ids"].get(eid, [])
                     if any(numbers(by_id[eid].text) != numbers(by_id[x].text) for x in related):
                         story.flags.append("overlapping_coverage_check")
-                doc["stories"] = [s.to_dict() for s in stories]
+                doc["stories"] = [s.to_dict() for s in stories[:max(0, settings['story_limit']-len(doc['development_watch']))]]
             doc["status"] = "partial" if doc["gaps"] else "draft"
             store.save_run(run_id, doc)
             store.save_edition(run_id, doc)

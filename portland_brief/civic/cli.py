@@ -16,6 +16,7 @@ from .reports import generate, review
 from .capture import create_job, run_capture, import_transcript, vocabulary
 from .projects import lookup as lookup_project
 from .developments import scan as scan_developments
+from .notices import collect as collect_notices
 
 
 def coverage(store):
@@ -56,9 +57,27 @@ def main(argv=None):
     filing.add_argument('--file', type=Path, required=True)
     filing.add_argument('--url', required=True)
     collect = sub.add_parser('filings')
-    collect.add_argument('--max-notices', type=int, default=5)
+    collect.add_argument('--max-notices', type=int)
     collect.add_argument('--boundaries', action='store_true')
     collect.add_argument('--refresh', action='store_true')
+    collect.add_argument('--max-pages', type=int)
+    collect.add_argument('--attachments', action='store_true', default=None)
+    collect.add_argument('--no-attachments', dest='attachments', action='store_false')
+    notices = sub.add_parser('notices', help='Reconcile the current city notice inventory and extract official PDFs')
+    notices.add_argument('--max-pages', type=int, default=4)
+    notices.add_argument('--max-notices', type=int, default=100)
+    notices.add_argument('--refresh', action='store_true')
+    notices.add_argument('--no-attachments', action='store_true')
+    sub.add_parser('development-reports', help='Build private, evidence-linked development review drafts')
+    dev_evidence = sub.add_parser('development-evidence', help='Cross-check focused projects with official property and related permit records')
+    dev_evidence.add_argument('--refresh', action='store_true')
+    dev_review = sub.add_parser('review-development')
+    dev_review.add_argument('report_id')
+    dev_review.add_argument('action', choices=['approve', 'hold', 'edit', 'correct'])
+    dev_review.add_argument('--editor', required=True)
+    dev_review.add_argument('--note', required=True)
+    dev_review.add_argument('--review-seconds', type=float, required=True)
+    dev_review.add_argument('--file', type=Path, help='JSON claims selected from the evidence-backed draft')
     project = sub.add_parser('lookup-project', help='Inspect official permits at a street address; private evidence only')
     project.add_argument('--address', required=True)
     project.add_argument('--limit', type=int, default=100)
@@ -98,13 +117,25 @@ def main(argv=None):
             jid = create_job(store, args.meeting_id, args.url, args.mode)
             result = {'job_id': jid, **run_capture(store, jid, args.max_seconds)}
         else:
-            with run_lock(database.parent / ('filings.lock' if args.command in {'filings', 'import-filing', 'lookup-project', 'developments'} else 'meetings.lock')):
+            with run_lock(database.parent / ('filings.lock' if args.command in {'filings', 'import-filing', 'lookup-project', 'developments', 'notices', 'development-reports', 'development-evidence', 'review-development'} else 'meetings.lock')):
                 if args.command == 'lookup-project':
                     result = lookup_project(store, fetcher, args.address, args.limit)
                 elif args.command == 'developments':
                     source = next(s for s in registry if s['type'] == 'development_permits' and s['enabled'])
                     cfg = json.loads((root / 'config/tasks.json').read_text())['filings']['development_focus']
                     result = scan_developments(store, fetcher, source, cfg, root / settings['output_path'] / 'development-review')
+                elif args.command == 'notices':
+                    source = next(s for s in registry if s['type'] == 'land_use_notices' and s['enabled'])
+                    result = collect_notices(store, fetcher, source, root / settings['output_path'] / 'development-review', args.max_pages, args.max_notices, not args.no_attachments)
+                elif args.command == 'development-reports':
+                    from .development_reports import generate
+                    result = generate(store, root / settings['output_path'] / 'development-review')
+                elif args.command == 'development-evidence':
+                    from .development_evidence import research
+                    result = research(store, fetcher, datetime.now(ZoneInfo('America/Los_Angeles')).strftime('%m/%d/%Y'))
+                elif args.command == 'review-development':
+                    from .development_reports import review
+                    result = review(store, args.report_id, args.action, args.editor, args.note, args.review_seconds, json.loads(args.file.read_text()) if args.file else None)
                 elif args.command == 'discover':
                     if not 1 <= args.max_pages <= 1000 or (args.start_url and not args.source):
                         raise ValueError('Use a bounded page budget and source for continuations')
@@ -167,7 +198,12 @@ def main(argv=None):
                     data = args.file.read_bytes()
                     result = import_filing(store, json.loads(data), data, args.url)
                 elif args.command == 'filings':
-                    if not 1 <= args.max_notices <= 100:
+                    filing_cfg = json.loads((root / 'config/tasks.json').read_text())['filings']
+                    notice_cfg = filing_cfg.get('notice_collection', {})
+                    max_notices = args.max_notices if args.max_notices is not None else notice_cfg.get('max_notices', 100)
+                    max_pages = args.max_pages if args.max_pages is not None else notice_cfg.get('max_pages', 4)
+                    attachments = args.attachments if args.attachments is not None else notice_cfg.get('attachments', True)
+                    if not 1 <= max_notices <= 100:
                         raise ValueError('Bound notice requests')
                     result = []
                     for source in registry:
@@ -180,25 +216,15 @@ def main(argv=None):
                                 cfg = json.loads((root / 'config/tasks.json').read_text())['filings']['development_focus']
                                 result.append(scan_developments(store, fetcher, source, cfg, root / settings['output_path'] / 'development-review'))
                             elif source['type'] == 'land_use_notices':
-                                data, meta = fetcher.get(source['url'], 'html')
-                                if meta.get('status') == 'stale_cache':
-                                    raise RuntimeError('Notice index fetch failed')
-                                links, pagination = notice_links(data, source['url'])
-                                store.source_version(source['url'], data, 'land-use-index-v1', {'links': links, 'pagination': pagination}, 'filings')
-                                result.append({'index': source['url'], 'notices_on_page': len(links), 'next_url': pagination['next_url'], 'complete': False, 'scope': 'bounded first-page sample'})
-                                for link in links[:args.max_notices]:
-                                    try:
-                                        body, meta = fetcher.get(link['url'], 'html')
-                                        if meta.get('status') == 'stale_cache':
-                                            raise RuntimeError('Notice request failed')
-                                        row = parse_notice(body, link['url'])
-                                        result.append(import_filing(store, row, body, link['url']))
-                                    except Exception as exc:
-                                        store.failed_retrieval('filings', link['url'], exc)
-                                        result.append({'url': link['url'], 'held_for_review': str(exc)})
+                                result.append(collect_notices(store, fetcher, source, root / settings['output_path'] / 'development-review', max_pages, max_notices, attachments))
                         except Exception as exc:
                             store.failed_retrieval('filings', source['url'], exc)
                             result.append({'url': source['url'], 'error': str(exc)})
+                    from .development_reports import generate
+                    if filing_cfg.get('research_focused_projects', True):
+                        from .development_evidence import research
+                        result.append(research(store, fetcher, datetime.now(ZoneInfo('America/Los_Angeles')).strftime('%m/%d/%Y')))
+                    result.append({'development_review_queue': generate(store, root / settings['output_path'] / 'development-review')})
                 elif args.command in {'approve', 'hold', 'edit', 'correct'}:
                     result = review(store, args.report_id, args.command, args.editor, args.note, args.review_seconds, json.loads(args.file.read_text()) if hasattr(args, 'file') else None)
                 elif args.command == 'import-transcript':
@@ -213,6 +239,8 @@ def main(argv=None):
                     result = {'backup': str(args.out), 'source_artifacts': str(database.parent / 'source-versions'), 'note': 'Back up source-versions and capture directories with the database.'}
         print(json.dumps(result, indent=2, ensure_ascii=False))
         if args.command == 'developments' and result['errors']:
+            return 1
+        if args.command == 'notices' and (not result['complete'] or not args.no_attachments and not result['attachment_processing_complete']):
             return 1
         return 0
     except (ValueError, RuntimeError, OSError, sqlite3.Error) as exc:

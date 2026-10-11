@@ -96,7 +96,7 @@ def import_filing(store, row, raw, url):
     safe_url(url)
     jurisdiction = row.get('jurisdiction_id', 'portland')
     # Stages are events, not an overwritable current outcome. A proposal cannot become construction.
-    version, changed = store.source_version(url, raw, 'structured-filing-v2', row, 'filings')
+    version, changed = store.source_version(url, raw, 'structured-filing-v3', row, 'filings')
     ident = stable_id('filing-event', jurisdiction, row['case_identifier'], row['stage'], row.get('official_event_identifier') or url)
     passage = store.passage(version, row.get('locator', 'notice'), row['evidence_text'])
     store.upsert('filing_events', id=ident, jurisdiction_id=jurisdiction, case_identifier=row['case_identifier'], stage=row['stage'], source_url=url, version_id=version, data={**row, 'passage_id': passage})
@@ -125,7 +125,7 @@ def parse_notice(data, url):
     neighborhood = field(main, name='field-neighborhood')
     published = main.select_one('.field--name-field-published-on time[datetime]')
     passage = ' '.join(x for x in [title, summary, text(body), 'Official neighborhood: ' + neighborhood if neighborhood else ''] if x)
-    match = re.search(r'\b(?:LU|LUR)\s*\d{2,4}\s*[-–]\s*\d{5,8}(?:\s*[-–]?\s*[A-Z0-9-]+)?', title + ' ' + passage, re.I)
+    match = re.search(r'\b(?:LU|LUR|PR)\s*\d{2,4}\s*[-–]\s*\d{5,8}(?:\s*[-–]?\s*[A-Z0-9-]+)?', title + ' ' + passage, re.I)
     if not match:
         raise ValueError('Stable land-use case identifier not found; hold notice for manual extraction')
     identifier = re.sub(r'\s+', '', match[0]).upper()
@@ -133,6 +133,13 @@ def parse_notice(data, url):
     stage = 'approval' if re.search(r'approval|approved', lower) else 'denial' if re.search(r'denial|denied', lower) else 'proposal' if 'proposal' in lower else 'application' if 'application' in lower else 'unknown'
     # Decisions are not always approvals. Preserve unknown pending explicit disposition review.
     address = re.search(r'\b\d{1,6}\s+[NESW]{1,2}\s+.+', summary, re.I)
-    deadline = re.search(r'Comment Deadline:\s*(.*?)(?:PDF file|$)', text(body))
-    links = [{'url': safe_url(urljoin(url, a['href']), ['www.portland.gov']), 'label': text(a)} for a in body.select('a[href]') if '.pdf' in a['href']] if body else []
-    return {'case_identifier': identifier, 'stage': stage, 'title': title, 'evidence_text': passage, 'locator': '.field--name-field-body-content + official summary/neighborhood fields', 'geometry': None, 'address': address[0] if address else None, 'published_at_raw': published['datetime'] if published else None, 'comment_deadline_raw': deadline[1].strip() if deadline else None, 'attachments': links, 'explicit_affected_neighborhoods': neighborhood.split('; ') if neighborhood else None, 'impact_relation': 'physically_located' if neighborhood and address else 'unknown', 'extraction_notes': 'Neighborhood is the explicit official field; spatial match not performed without verified geometry. Generic decision headings do not establish approval.'}
+    # Extract the actual labeled instruction, without swallowing unrelated links.
+    deadlines = {}
+    for node in body.select('p, li') if body else []:
+        value = text(node)
+        for label in ['Comment Deadline', 'Appeal Deadline']:
+            match = re.search(re.escape(label) + r'\s*:\s*(.+)', value, re.I)
+            if match:
+                deadlines[label] = match[1].strip()
+    links = [{'url': safe_url(urljoin(url, a['href']), ['www.portland.gov']), 'label': text(a)} for a in body.select('a[href]') if '.pdf' in a['href'].lower() or ('/documents/' in a['href'] and a['href'].rstrip('/').endswith('/download'))] if body else []
+    return {'case_identifier': identifier, 'stage': stage, 'title': title, 'evidence_text': passage, 'locator': '.field--name-field-body-content + official summary/neighborhood fields', 'geometry': None, 'address': address[0] if address else None, 'published_at_raw': published['datetime'] if published else None, 'comment_deadline_raw': deadlines.get('Comment Deadline'), 'appeal_deadline_raw': deadlines.get('Appeal Deadline'), 'attachments': links, 'explicit_affected_neighborhoods': neighborhood.split('; ') if neighborhood else None, 'impact_relation': 'physically_located' if neighborhood and address else 'unknown', 'extraction_notes': 'Neighborhood is the explicit official field; spatial match not performed without verified geometry. Generic decision headings do not establish approval.'}

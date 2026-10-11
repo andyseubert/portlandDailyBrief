@@ -24,7 +24,7 @@ def git(root, *args):
                           check=True, capture_output=True, text=True, timeout=90).stdout.strip()
 
 
-def validate(doc, registry):
+def validate(doc, registry, civic_store=None):
     if date.fromisoformat(doc['date']).isoformat() != doc['date']:
         raise ValueError('Invalid archive date')
     if doc['status'] not in {'draft', 'partial', 'editorial_draft'}:
@@ -40,6 +40,12 @@ def validate(doc, registry):
     for key in ['forecast_url', 'alert_url']:
         if doc['weather'].get(key):
             safe_url(doc['weather'][key], ['api.weather.gov'])
+    if doc.get('development_watch'):
+        if civic_store is None:
+            raise ValueError('Development content requires its civic evidence and editorial audit')
+        from .civic.development_reports import validate_snapshot
+        for project in doc['development_watch']:
+            validate_snapshot(civic_store, project, doc['generated_at'])
 
 
 def export(root):
@@ -49,13 +55,15 @@ def export(root):
     # The same lock used by generation/editing gives a consistent current version.
     with run_lock(root / settings['data_path'] / 'run.lock'):
         store = Store(root / settings['data_path'] / 'editorial.sqlite3')
+        from .civic.store import CivicStore
+        civic = CivicStore(root / settings['data_path'] / 'civic.sqlite3')
         try:
             documents = []
             for edition in store.list_editions():
                 if edition['state'] not in {'needs_review', 'approved'}:
                     continue
                 _, doc = store.get(edition['date'])
-                validate(doc, registry)
+                validate(doc, registry, civic)
                 documents.append(doc)
             # Validate the whole batch before replacing any last-known-good files.
             for doc in documents:
@@ -72,6 +80,7 @@ def export(root):
                 atomic_text(root / 'briefings.md', '# Portland Daily Brief archive\n\nAI-assisted review drafts; editorial approval pending. Historical forecasts describe the time checked. Corrections and earlier versions remain in Git history.\n\n' + '\n'.join(f'- [{day}](posts/{day}.md) · [HTML](posts/{day}.html)' for day in dates) + '\n')
             return dates
         finally:
+            civic.close()
             store.close()
 
 
