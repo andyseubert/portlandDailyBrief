@@ -21,6 +21,14 @@ def load_config(root: Path):
         settings['story_limit'] = min(settings['story_limit'], daily['story_maximum'])
         settings['late_arrival_lookback_hours'] = daily['late_arrival_lookback_hours']
         settings['scheduling'] = bool(tasks.get('schedule', {}).get('enabled'))
+        priorities = daily.get('editorial_priorities', [])
+        for priority in priorities:
+            if (not isinstance(priority.get('id'), str) or
+                not isinstance(priority.get('terms'), list) or not priority['terms'] or
+                any(not isinstance(t, str) or not t.strip() for t in priority['terms']) or
+                type(priority.get('weight')) is not int or not 0 <= priority['weight'] <= 10):
+                raise ValueError('Editorial priorities require an ID, literal search terms and a weight from 0 to 10')
+        settings['editorial_priorities'] = priorities
         if not settings['window_hours'] <= settings['late_arrival_lookback_hours'] <= 168:
             raise ValueError('Late arrival lookback must cover the publication window and be at most seven days')
     ZoneInfo(settings["timezone"])

@@ -8,7 +8,35 @@
     "publication_window_hours": 24,
     "late_arrival_lookback_hours": 72,
     "model_revision": null,
-    "configuration_notes": "Null provider/model inherit pinned news settings; task overrides require a matching immutable revision. Other tasks currently support only their named deterministic/manual provider."
+    "configuration_notes": "Null provider/model inherit pinned news settings; task overrides require a matching immutable revision. Other tasks currently support only their named deterministic/manual provider.",
+    "editorial_priorities": [
+      {
+        "id": "development_and_zoning",
+        "weight": 6,
+        "terms": [
+          "zoning",
+          "rezoning",
+          "rezone",
+          "land use",
+          "land-use",
+          "landuse",
+          "development project",
+          "development proposal",
+          "proposed development",
+          "redevelopment",
+          "building permit",
+          "building permits",
+          "housing development",
+          "housing project",
+          "housing projects",
+          "planning commission",
+          "comprehensive plan",
+          "design review",
+          "subdivision"
+        ],
+        "notes": "Prioritize supported Portland and Multnomah County development, zoning, land-use changes and public participation deadlines. Relevance, freshness, evidence validation, source balance and story maximum still apply; never infer approval, construction or opening."
+      }
+    ]
   },
   "meeting_extraction": {
     "provider": "deterministic_official_parser",
@@ -31,7 +59,8 @@
   "filings": {
     "provider": "deterministic_official_parser",
     "model": null,
-    "max_pages_per_scan": 4
+    "max_pages_per_scan": 4,
+    "coverage_priority": "city_and_county_development_and_zoning"
   },
   "schedule": {
     "installed": true,

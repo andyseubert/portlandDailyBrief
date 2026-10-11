@@ -50,6 +50,12 @@ Only short RSS descriptions are used. Full-content fields and media enclosures a
 
 Edit `config/settings.json` for the timezone, jurisdiction, output/data/cache paths, story limit, window and model. The provider currently implemented is `mlx`; changing provider names does not create an API integration. Change `model` and `model_revision` together, verify the model license/hardware needs, and rerun the tests and an evidence review. Maximum model input/output tokens per attempt and total run tokens are enforced. Model errors have bounded retries; invalid outputs are omitted. `.env.example` documents optional environment variables; the application does not load `.env` implicitly.
 
+## Development and zoning priority
+
+Supported Portland and Multnomah County zoning, land-use, redevelopment, housing projects and planning-commission stories receive a configurable ranking boost in `daily_brief.editorial_priorities` in `config/tasks.json`. Relevance, publication windows, source balance, evidence validation and the maximum story count still apply. Explicitly different land-use case IDs and different procedural stages are preserved when checking similar story titles. Priority does not make an application an approval or a permit proof of construction.
+
+City land-use notices are currently a bounded five-notice sample. Official city/county planning-commission, county public-notice and hearings-officer entry points are verified and cataloged with adapters pending; they are not yet automatic coverage. The next source increment should complete city notice pagination and county case/document ingestion, then connect evidence-backed development events to the daily review workflow.
+
 ## Review, edit and approve locally
 
 ```sh

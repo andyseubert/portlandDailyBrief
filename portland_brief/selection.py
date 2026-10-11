@@ -8,6 +8,20 @@ OUTSIDE = re.compile(r"\b(salem|keizer|deschutes|bend|eugene|la grande|tillamook
 PROMO = re.compile(r"\b(free tickets|sponsored|executive MBA|good morning, news|spin cycle|black byline)\b", re.I)
 
 
+def priority_matches(item, settings):
+    text = item.title + ' ' + item.text
+    return [p for p in settings.get('editorial_priorities', [])
+            if any(re.search(r'(?<!\w)' + re.escape(term) + r'(?!\w)', text, re.I)
+                   for term in p['terms'])]
+
+
+def official_case_ids(item):
+    # Only explicit case identifiers; never derive project identity from a title.
+    return {re.sub(r'\s+', '', match).upper() for match in re.findall(
+        r'\b(?:LU|LUR)\s*\d{2,4}\s*[-–]\s*\d{5,8}|\bT[1-4]-\d{4}-\d{4,8}',
+        item.title + ' ' + item.text, re.I)}
+
+
 def relevant(item, settings):
     if item.source_id in {"portland", "multnomah"}:
         return True
@@ -27,6 +41,16 @@ def relevant(item, settings):
 def overlapping(a, b):
     if canonical_url(a.url) == canonical_url(b.url):
         return True
+    ca, cb = official_case_ids(a), official_case_ids(b)
+    if ca and cb:
+        if ca.isdisjoint(cb):
+            return False
+        # Different procedural stages of one project remain distinct news events.
+        # A decision heading alone still says nothing about approval or denial.
+        stage = r'\b(proposal|application|decision|approval|denial|permit|construction|opening)\b'
+        sa, sb = re.search(stage, a.title, re.I), re.search(stage, b.title, re.I)
+        if sa and sb and sa[1].casefold() != sb[1].casefold():
+            return False
     wa, wb = words(a.title), words(b.title)
     if wa and wb and len(wa & wb) / min(len(wa), len(wb)) >= .65:
         return True
@@ -58,6 +82,7 @@ def select(items, now, settings):
         score = 3 if item.source_id in {"portland", "multnomah"} else 0
         score += 2 if re.search(r"council|schools?|ice|fire|government|court|budget|water|closure", t) else 0
         score += 1 if re.search(r"portland|multnomah", t) else 0
+        score += sum(p['weight'] for p in priority_matches(item, settings))
         return score, parse_time(item.published_at).timestamp()
     eligible.sort(key=rank, reverse=True)
     selected, clusters, source_counts = [], {}, Counter()
@@ -73,4 +98,5 @@ def select(items, now, settings):
             source_counts[item.source_id] += 1
         else:
             counts["story_limit"] += 1
-    return selected, {"excluded": dict(counts), "overlapping_evidence_ids": clusters, "eligible_count": len(eligible)}
+    return selected, {"excluded": dict(counts), "overlapping_evidence_ids": clusters, "eligible_count": len(eligible),
+                      "selected_priorities": {i.id: [p['id'] for p in priority_matches(i, settings)] for i in selected}}

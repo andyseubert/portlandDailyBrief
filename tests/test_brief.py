@@ -119,6 +119,48 @@ class SourceAndSelectionTests(unittest.TestCase):
         e = evidence(source_id="koin", title="El Nino affects the Oregon Coast", text="PORTLAND, Ore. (KOIN) -- Coastal wave heights are forecast to rise along the Oregon Coast.")
         self.assertFalse(relevant(e, self.settings))
 
+    def test_development_priority_precedes_newer_entertainment(self):
+        zoning = evidence(id='zoning', source_id='opb', title='Portland considers zoning changes',
+                          published_at=(NOW-timedelta(hours=8)).isoformat(),
+                          text='A proposed zoning change in Portland is scheduled for a public hearing, with written comments invited before the deadline.')
+        entertainment = evidence(id='fun', source_id='opb', url='https://www.portland.gov/fun',
+                                 title='Portland Halloween events this weekend', published_at=NOW.isoformat())
+        settings = {**self.settings, 'story_limit': 1}
+        selected, stats = select([entertainment, zoning], NOW, settings)
+        self.assertEqual([s.id for s in selected], ['zoning'])
+        self.assertEqual(stats['selected_priorities']['zoning'], ['development_and_zoning'])
+
+    def test_priority_does_not_admit_stale_outside_or_thin_items(self):
+        items = [
+            evidence(id='stale', title='Portland rezoning proposal', published_at=(NOW-timedelta(hours=25)).isoformat()),
+            evidence(id='outside', source_id='opb', title='Eugene zoning changes', text='Eugene officials proposed zoning changes for a development project near downtown with a public hearing later this month.'),
+            evidence(id='thin', title='Portland land use proposal', text='New application.'),
+        ]
+        selected, stats = select(items, NOW, self.settings)
+        self.assertEqual(selected, [])
+        self.assertEqual(stats['excluded']['older_than_window'], 1)
+        self.assertEqual(stats['excluded']['outside_scope_or_promotional'], 1)
+        self.assertEqual(stats['excluded']['insufficient_evidence'], 1)
+
+    def test_similar_titles_with_distinct_city_or_county_cases_not_merged(self):
+        for left, right in [('LU 26-071183 AD', 'LU 26-071184 AD'), ('T2-2026-0031', 'T2-2026-0042')]:
+            a = evidence(title='Portland land use proposal ' + left)
+            b = evidence(id='different', title='Portland land use proposal ' + right, url='https://www.portland.gov/other')
+            self.assertFalse(overlapping(a, b))
+
+    def test_proposal_and_decision_of_same_case_remain_distinct(self):
+        a = evidence(title='Portland land use proposal LU 26-071183 AD')
+        b = evidence(id='decision', title='Portland land use decision LU 26-071183 AD', url='https://www.portland.gov/decision')
+        self.assertFalse(overlapping(a, b))
+
+    def test_priority_can_be_disabled_without_filtering_stories(self):
+        zoning = evidence(id='zoning', title='Portland zoning proposal', published_at=(NOW-timedelta(hours=8)).isoformat())
+        newest = evidence(id='new', title='Portland weekend activities', url='https://www.portland.gov/weekend', published_at=NOW.isoformat())
+        settings = {**self.settings, 'editorial_priorities': [], 'story_limit': 1}
+        selected, stats = select([zoning, newest], NOW, settings)
+        self.assertEqual([s.id for s in selected], ['new'])
+        self.assertEqual(stats['selected_priorities']['new'], [])
+
     def test_full_content_not_cached_or_used(self):
         rss = b'<rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>T</title><item><title>Portland notice</title><link>https://www.portland.gov/news/test</link><description>Short public description</description><content:encoded>FULL ARTICLE PRIVATE CONTENT</content:encoded><pubDate>Fri, 09 Oct 2026 18:00:00 -0700</pubDate></item></channel></rss>'
         data = minimize_feed(rss, 30)
