@@ -14,6 +14,7 @@ from .ingestion import bootstrap, ingest_rosters, ingest_agenda, scan, reconcile
 from .geography import fetch_boundaries, import_filing, notice_links, parse_notice
 from .reports import generate, review
 from .capture import create_job, run_capture, import_transcript, vocabulary
+from .projects import lookup as lookup_project
 
 
 def coverage(store):
@@ -57,6 +58,10 @@ def main(argv=None):
     collect.add_argument('--max-notices', type=int, default=5)
     collect.add_argument('--boundaries', action='store_true')
     collect.add_argument('--refresh', action='store_true')
+    project = sub.add_parser('lookup-project', help='Inspect official permits at a street address; private evidence only')
+    project.add_argument('--address', required=True)
+    project.add_argument('--limit', type=int, default=100)
+    project.add_argument('--refresh', action='store_true')
     for action in ['approve', 'hold', 'edit', 'correct']:
         p = sub.add_parser(action)
         p.add_argument('report_id')
@@ -90,8 +95,10 @@ def main(argv=None):
             jid = create_job(store, args.meeting_id, args.url, args.mode)
             result = {'job_id': jid, **run_capture(store, jid, args.max_seconds)}
         else:
-            with run_lock(database.parent / ('filings.lock' if args.command in {'filings', 'import-filing'} else 'meetings.lock')):
-                if args.command == 'discover':
+            with run_lock(database.parent / ('filings.lock' if args.command in {'filings', 'import-filing', 'lookup-project'} else 'meetings.lock')):
+                if args.command == 'lookup-project':
+                    result = lookup_project(store, fetcher, args.address, args.limit)
+                elif args.command == 'discover':
                     if not 1 <= args.max_pages <= 1000 or (args.start_url and not args.source):
                         raise ValueError('Use a bounded page budget and source for continuations')
                     result = []

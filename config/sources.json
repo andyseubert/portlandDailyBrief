@@ -71,24 +71,36 @@
     "url": "https://www.kgw.com/feeds/syndication/rss/news/local",
     "type": "rss",
     "jurisdiction": "Portland region; direct local relevance required",
-    "enabled": false,
+    "enabled": true,
     "allowed_hosts": [
       "www.kgw.com",
       "kgw.com"
     ],
     "last_validation_date": "2026-10-10",
-    "access_notes": "RSS endpoint responds, but terms at /terms prohibit automated requests/scraping absent an applicable exception. Disabled pending permission/clarification; do not assume RSS overrides the terms.",
+    "access_notes": "Andy reports permission from KGW for automated collection in this written brief. Use the source-specific normal browser User-Agent. Collect public RSS descriptions only, preserve attribution and keep retrieved evidence private. No paywall or authentication bypass. This permission does not extend to OregonLive or other publishers.",
     "terms_url": "https://www.kgw.com/terms",
     "expected_update_frequency": "multiple daily",
-    "health_status": "disabled",
-    "access_status": "permission_required",
-    "coverage_note": "Disabled: publisher permission required for automated collection",
+    "health_status": "cached",
+    "access_status": "authorized_automated_collection",
+    "coverage_note": "Automated collection authorized by KGW permission reported by Andy",
     "access_validation": {
-      "checked_at": "2026-10-11T02:46:45.859113+00:00",
-      "status": "permission_required",
+      "checked_at": "2026-10-11T02:55:29.937259+00:00",
+      "status": "authorized_automated_collection",
+      "basis": "Andy reports KGW permission in this session; previous permission requirement resolved by user attestation.",
       "terms_evidence_url": "https://www.kgw.com/terms",
-      "permission_origin": null
-    }
+      "permission_origin": "user_attestation",
+      "permission_scope": "KGW; automated collection for this written brief",
+      "independently_verified_permission": false
+    },
+    "access_history": [
+      {
+        "checked_at": "2026-10-11T02:46:45.859113+00:00",
+        "status": "permission_required",
+        "terms_evidence_url": "https://www.kgw.com/terms",
+        "permission_origin": null
+      }
+    ],
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
   },
   {
     "id": "koin",
@@ -125,24 +137,36 @@
     "url": "https://www.kptv.com/arc/outboundfeeds/rss/category/news/?outputType=xml",
     "type": "rss",
     "jurisdiction": "Portland region; direct local relevance required",
-    "enabled": false,
+    "enabled": true,
     "allowed_hosts": [
       "www.kptv.com",
       "kptv.com"
     ],
     "last_validation_date": "2026-10-10",
-    "access_notes": "Terms prohibit automated collection and using station content as input for AI/ML without express written consent. Disabled; technical feed availability is not permission.",
+    "access_notes": "Andy reports permission from KPTV for automated collection in this written brief. Use the source-specific normal browser User-Agent. Collect public RSS descriptions only, preserve attribution and keep retrieved evidence private. No paywall or authentication bypass. This permission does not extend to OregonLive or other publishers.",
     "terms_url": "https://www.kptv.com/terms-of-service",
     "expected_update_frequency": "multiple daily",
-    "health_status": "disabled",
-    "access_status": "permission_required",
-    "coverage_note": "Disabled: publisher permission required for automated collection",
+    "health_status": "cached",
+    "access_status": "authorized_automated_collection",
+    "coverage_note": "Automated collection authorized by KPTV permission reported by Andy",
     "access_validation": {
-      "checked_at": "2026-10-11T02:46:45.859113+00:00",
-      "status": "permission_required",
+      "checked_at": "2026-10-11T02:55:29.937259+00:00",
+      "status": "authorized_automated_collection",
+      "basis": "Andy reports KPTV permission in this session; previous permission requirement resolved by user attestation.",
       "terms_evidence_url": "https://www.kptv.com/terms-of-service",
-      "permission_origin": null
-    }
+      "permission_origin": "user_attestation",
+      "permission_scope": "KPTV; automated collection for this written brief",
+      "independently_verified_permission": false
+    },
+    "access_history": [
+      {
+        "checked_at": "2026-10-11T02:46:45.859113+00:00",
+        "status": "permission_required",
+        "terms_evidence_url": "https://www.kptv.com/terms-of-service",
+        "permission_origin": null
+      }
+    ],
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
   },
   {
     "id": "portland",
@@ -185,28 +209,46 @@
   {
     "id": "oregonlive",
     "name": "The Oregonian / OregonLive",
-    "url": "https://www.oregonlive.com/",
-    "type": "unvalidated",
+    "url": "https://www.oregonlive.com/arc/outboundfeeds/rss/?outputType=xml",
+    "type": "rss",
     "jurisdiction": "Oregon",
     "enabled": false,
     "allowed_hosts": [
       "www.oregonlive.com",
       "oregonlive.com"
     ],
-    "last_validation_date": null,
-    "access_notes": "Candidate only. Disabled until a legitimate current feed or permitted endpoint and terms are verified. No paywall bypass.",
-    "terms_url": "https://www.oregonlive.com/terms/",
+    "last_validation_date": "2026-10-10",
+    "access_notes": "Publisher-hosted current RSS was retrieved and parsed (50 items). Discovery hint from a feed directory was verified directly at the publisher. Advance Local User Agreement sections 5.1.4, 5.1.10 and 5.2.1 restrict automated collection and AI use; RSS is subject to the same restrictions. No OregonLive permission reported; keep collection disabled. Never bypass paywalls or access controls.",
+    "terms_url": "https://www.advancelocal.com/advancelocalUserAgreement/user-agreement.html",
     "expected_update_frequency": "multiple daily",
     "health_status": "disabled",
-    "access_status": "endpoint_unvalidated",
-    "coverage_note": "Disabled: no verified usable feed; terms page returned HTTP 403",
+    "access_status": "permission_required",
+    "coverage_note": "Disabled: RSS verified; Advance Local permission required for automated collection and AI use",
     "access_validation": {
-      "checked_at": "2026-10-11T02:46:45.859113+00:00",
-      "status": "endpoint_unvalidated",
-      "terms_evidence_url": "https://www.oregonlive.com/terms/",
-      "terms_http_status": 403,
-      "feed_verified": false
-    }
+      "checked_at": "2026-10-11T02:57:12.314848+00:00",
+      "status": "permission_required",
+      "terms_evidence_url": "https://www.advancelocal.com/advancelocalUserAgreement/user-agreement.html",
+      "feed_verified": true,
+      "feed_item_count": 50,
+      "discovery_hint_url": "https://rss.feedspot.com/oregon_news_rss_feeds/",
+      "verified_feed_url": "https://www.oregonlive.com/arc/outboundfeeds/rss/?outputType=xml",
+      "permission_origin": null,
+      "terms_sections": [
+        "5.1.4",
+        "5.1.10",
+        "5.2.1"
+      ],
+      "terms_note": "Publisher RSS is explicitly subject to the same restrictions; automated collection and AI use require prior consent."
+    },
+    "access_history": [
+      {
+        "checked_at": "2026-10-11T02:46:45.859113+00:00",
+        "status": "endpoint_unvalidated",
+        "terms_evidence_url": "https://www.oregonlive.com/terms/",
+        "terms_http_status": 403,
+        "feed_verified": false
+      }
+    ]
   },
   {
     "id": "portland-zoning",

@@ -244,5 +244,53 @@
     "last_successful_check_at": null,
     "coverage_priority": "development_and_zoning",
     "notes": "Official land-use advisory commission makes recommendations to City Council. Actual events include cancellations and changed times; discover published schedules, do not infer recurrence or adoption. Agenda/document integration pending."
+  },
+  {
+    "id": "portland-permit-lookup",
+    "jurisdiction": "portland",
+    "pipeline": "filings",
+    "type": "permit_lookup",
+    "url": "https://www.portlandmaps.com/arcgis/rest/services/Public/BDS_Permit/MapServer/22",
+    "official_entry": "https://www.portland.gov/ppd/public-records",
+    "method": "Validated bounded on-demand address query; portland-civic lookup-project",
+    "cadence": "on demand; no scheduled permit monitoring yet",
+    "enabled": false,
+    "health_status": "live_query_validated",
+    "entry_checked_at": "2026-10-11T02:58:29.037671+00:00",
+    "last_successful_check_at": "2026-10-11T02:58:29.037671+00:00",
+    "coverage_priority": "development_and_zoning",
+    "notes": "All Permits layer fields and WGS84 response tested. Stable FOLDERKEY, separate APPLICATION identifier and PERMIT category label. Raw status/description retained; permits are not merged into projects. One address compared with the official residential issued-permits report; detail link opens a JavaScript application. Bounded response, not a complete historical/property or city inventory. Source organization is City of Portland; CITY/COUNTY fields alone do not establish deciding jurisdiction."
+  },
+  {
+    "id": "portland-construction-demolition-map",
+    "jurisdiction": "portland",
+    "pipeline": "filings",
+    "type": "public_map",
+    "url": "https://www.portlandmaps.com/bds/construction_and_demolition_map",
+    "official_entry": "https://www.portland.gov/ppd/public-records",
+    "method": "Official interactive map; human lookup",
+    "cadence": "on demand",
+    "enabled": false,
+    "health_status": "official_link_verified",
+    "entry_checked_at": "2026-10-11T02:58:29.037671+00:00",
+    "last_successful_check_at": null,
+    "coverage_priority": "development_and_zoning",
+    "notes": "Official city public-records page links this construction/demolition permit map. A mapped permit is not proof of active construction or completed development."
+  },
+  {
+    "id": "portland-permit-reports",
+    "jurisdiction": "portland",
+    "pipeline": "filings",
+    "type": "permit_reports",
+    "url": "https://www.portlandmaps.com/reports/index.cfm?action=co-intakes",
+    "official_entry": "https://www.portland.gov/ppd/public-records",
+    "method": "Official searchable reports; CSV/JSON/XML exports; monitoring adapter pending",
+    "cadence": "on demand; automated collection pending",
+    "enabled": false,
+    "health_status": "official_report_verified_adapter_pending",
+    "entry_checked_at": "2026-10-11T02:58:29.037671+00:00",
+    "last_successful_check_at": null,
+    "coverage_priority": "development_and_zoning",
+    "notes": "Separate commercial/residential intake, issued and land-use reports. Manual report verified; full export pagination and incremental checkpoints not implemented. Preserve intake/issuance stages and parent/deferred submittal identities."
   }
 ]

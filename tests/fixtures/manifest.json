@@ -52,5 +52,20 @@
     "sha256": "037bb631d16d2411ddca25e0c350e685d1345a3011f174bbc93d2b30162ae780",
     "retrieved_local_date": "2026-10-09",
     "parser_version": "official-html-v1"
+  },
+  "portland-permits-6866-se-87th.json": {
+    "url": "https://www.portlandmaps.com/arcgis/rest/services/Public/BDS_Permit/MapServer/22/query?f=json&where=HOUSE+LIKE+%27%256866%25%27+AND+DIRECTION+%3D+%27SE%27+AND+PROPSTREET+%3D+%2787TH%27&outFields=FOLDERKEY%2CPROPERTYKEY%2CAPPLICATION%2CPERMIT%2CSTATUS%2CHOUSE%2CDIRECTION%2CPROPSTREET%2CSTREETTYPE%2CCITY%2CCOUNTY%2CTYPE%2CWORK_DESCRIPTION%2CDESCRIPTION%2CISSUED%2CFINALED%2CNEIGHBORHOOD%2CGIS_LOCATION_TYPE%2CGIS_PROCESS_DATE%2CPORTLAND_MAPS_URL&outSR=4326&resultRecordCount=100&orderByFields=OBJECTID+DESC",
+    "sha256": "a9a828c930d1d8a080b7e7ca590eb75cedc6961b6e56bb4bb618e73f276186ed",
+    "retrieved_local_date": "2026-10-10",
+    "retrieved_at": "2026-10-11T02:57:11.598474+00:00",
+    "parser_version": "portland-permit-lookup/1",
+    "manually_compared_with": "https://www.portlandmaps.com/reports/index.cfm?action=rs-issued",
+    "verified_fields": [
+      "FOLDERKEY",
+      "APPLICATION (two-digit year display in report)",
+      "HOUSE/DIRECTION/PROPSTREET/STREETTYPE",
+      "STATUS",
+      "DESCRIPTION"
+    ]
   }
 }
