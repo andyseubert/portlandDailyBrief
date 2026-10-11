@@ -21,4 +21,4 @@ portland-schedule = "portland_brief.scheduling:main"
 include = ["portland_brief*"]
 
 [tool.setuptools.package-data]
-"portland_brief.civic" = ["*.sql"]
+"portland_brief.civic" = ["*.sql", "assets/*.css", "assets/*.js", "assets/vendor/leaflet/*"]

@@ -47,10 +47,13 @@ def run(root, settings, registry, force=False, now=None, summarizer=summarize):
         try:
             fetcher = Fetcher(root, settings, force)
             from .civic.store import CivicStore
-            from .civic.development_reports import approved_watch
+            from .civic.development_reports import approved_watch, source_checked_watch
             civic = CivicStore(data / 'civic.sqlite3')
             try:
-                doc['development_watch'] = approved_watch(civic, now, settings['window_hours'], min(3, settings['story_limit']))
+                tasks_path=root/'config/tasks.json'
+                policy=json.loads(tasks_path.read_text()).get('filings',{}).get('draft_review_policy','approved_only') if tasks_path.exists() else 'approved_only'
+                watch=source_checked_watch if policy=='automatic_source_checked' else approved_watch
+                doc['development_watch'] = watch(civic, now, settings['window_hours'], min(3, settings['story_limit']))
             finally:
                 civic.close()
             items, health = collect(fetcher, registry, settings)

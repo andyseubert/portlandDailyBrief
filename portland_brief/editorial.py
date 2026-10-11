@@ -69,6 +69,11 @@ def export_approved(store, target):
     for row in store.list_editions():
         if row["state"] == "approved":
             _, doc = store.get(row["date"])
+            doc = deepcopy(doc)
+            projects = doc.get("development_watch", [])
+            doc["development_watch"] = [p for p in projects if p.get("editorial_state") == "approved"]
+            if len(doc["development_watch"]) != len(projects):
+                doc["gaps"].append("Unreviewed development drafts are available in the local draft workspace; omitted from this approved export.")
             approved.append(doc)
     if not approved:
         raise ValueError("No editor-approved editions exist; no export created")

@@ -212,6 +212,17 @@ def scan(store, fetcher, source, config, output, now=None):
                     store.db.execute('INSERT OR IGNORE INTO development_versions VALUES(?,?,?,?,?,?)',
                         (stable_id('development-version', ident, content_hash, version), ident, version,
                          passage, content_hash, json.dumps(data, sort_keys=True)))
+                elif old['source_version'] != version:
+                    # A page can change because another permit changed, or the
+                    # parser improved. Refresh this unchanged record's evidence
+                    # without inventing a new project event or observation date.
+                    previous = store.db.execute('SELECT meaningful_hash FROM source_versions WHERE id=?', (old['source_version'],)).fetchone()
+                    current = store.db.execute('SELECT meaningful_hash FROM source_versions WHERE id=?', (version,)).fetchone()
+                    # Byte-only changes do not reopen a reviewed explanation.
+                    if not previous or previous[0] != current[0]:
+                        passage = store.passage(version, f'FOLDERKEY={key}', json.dumps(attrs, sort_keys=True))
+                        store.db.execute('UPDATE development_records SET source_version=?,passage_id=? WHERE id=?',
+                                         (version, passage, ident))
                 entries.append(ident)
             store.commit(); pages += 1
             if not obj.get('exceededTransferLimit'):

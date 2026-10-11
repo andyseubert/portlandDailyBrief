@@ -287,6 +287,18 @@ class RenderingAndStorageTests(unittest.TestCase):
         self.assertEqual(restored.db.execute("PRAGMA integrity_check").fetchone()[0], "ok")
         restored.close()
 
+    def test_approved_export_does_not_certify_automatic_development_drafts(self):
+        store = Store(self.root / "test.sqlite"); d = doc()
+        d['development_watch'] = [{'editorial_state': 'source_checked_draft', 'sentences': ['UNREVIEWED PROJECT PROPOSAL']}]
+        store.save_run('one', d); store.save_edition('one', d)
+        store.transition(d['date'], 'approved', 'Editor', 'Reviewed news edition')
+        target = self.root / 'approved'; export_approved(store, target)
+        corpus = ' '.join(p.read_text() for p in target.rglob('*') if p.is_file())
+        self.assertNotIn('UNREVIEWED PROJECT PROPOSAL', corpus)
+        self.assertIn('omitted from this approved export', corpus)
+        self.assertEqual(store.get(d['date'])[1]['development_watch'], d['development_watch'])
+        store.close()
+
     def test_all_sources_failure_preserves_previous_success(self):
         d = doc(); path = write_draft(self.root, self.settings, d, "good")
         before = (self.root / "output/drafts/index.html").read_bytes()

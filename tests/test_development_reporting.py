@@ -8,7 +8,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from portland_brief.civic.store import CivicStore
 from portland_brief.civic.developments import scan
-from portland_brief.civic.development_reports import generate, review, approved_watch, validate_snapshot, validate_claims
+from portland_brief.civic.development_reports import generate, review, approved_watch, source_checked_watch, validate_snapshot, validate_claims
 from portland_brief.civic.development_evidence import report_rows, research
 from portland_brief.civic.geography import notice_links, parse_notice
 from portland_brief.civic.notices import collect
@@ -125,6 +125,90 @@ class ReportingTests(unittest.TestCase):
         review(self.store,self.gibbs,'hold','Fixture editor','Revisit',10)
         validate(doc,[],self.store)
         self.assertEqual(approved_watch(self.store,NOW),[])
+
+    def test_automatic_drafts_need_no_human_approval_but_disclose_height_conflicts(self):
+        snapshots=source_checked_watch(self.store,NOW)
+        self.assertEqual(len(snapshots),3)
+        self.assertEqual(self.store.rows('development_review_audit'),[])
+        marshall=next(p for p in snapshots if p['folder_id']==5228969)
+        self.assertIn('description lists 4 stories',marshall['sentences'][0])
+        self.assertIn('field reports 3',marshall['sentences'][0])
+        self.assertIn('unconfirmed',marshall['sentences'][0])
+        for p in snapshots:validate_snapshot(self.store,p,datetime.now(timezone.utc).isoformat())
+        from portland_brief.repository_archive import validate
+        validate({'date':'2026-10-10','status':'draft','stories':[],'weather':{},'development_watch':snapshots,'generated_at':datetime.now(timezone.utc).isoformat()},[],self.store)
+        wrong=copy.deepcopy(marshall);wrong['sentences'][0]='A four-story building was approved.'
+        with self.assertRaisesRegex(ValueError,'explanation differs'):
+            validate_snapshot(self.store,wrong,datetime.now(timezone.utc).isoformat())
+        wrong=copy.deepcopy(marshall);wrong['editorial_state']='approved'
+        with self.assertRaisesRegex(ValueError,'editorial approval'):
+            validate_snapshot(self.store,wrong,datetime.now(timezone.utc).isoformat())
+
+    def test_automatic_drafts_respect_an_explicit_editor_hold_and_stale_evidence(self):
+        review(self.store,self.gibbs,'hold','Fixture editor','Do not include this draft',30)
+        self.assertNotIn(5273121,[p['folder_id'] for p in source_checked_watch(self.store,NOW)])
+        self.assertEqual(source_checked_watch(self.store,NOW+timedelta(hours=25)),[])
+        original=next(r for r in self.store.rows('development_records') if r['folder_id']==5243125)
+        source=self.store.db.execute('SELECT * FROM source_versions WHERE id=?',(original['source_version'],)).fetchone()
+        self.store.source_version(source['url'],b'changed evidence','changed-parser/1',{'changed':True},'filings')
+        self.assertNotIn(5243125,[p['folder_id'] for p in source_checked_watch(self.store,NOW)])
+
+    def test_unchanged_permit_refreshes_provenance_after_a_page_or_parser_change(self):
+        record=next(r for r in self.store.rows('development_records') if r['folder_id']==5243125)
+        source=self.store.db.execute('SELECT * FROM source_versions WHERE id=?',(record['source_version'],)).fetchone()
+        # Simulate a record retained from an older parser's page-level semantics.
+        legacy,_=self.store.source_version(source['url'],b'legacy response','legacy-parser/1',{'legacy':True},'filings')
+        attrs=json.loads(record['data'])['attributes']
+        passage=self.store.passage(legacy,'FOLDERKEY=5243125',json.dumps(attrs,sort_keys=True))
+        self.store.db.execute('UPDATE development_records SET source_version=?,passage_id=? WHERE id=?',(legacy,passage,record['id']))
+        before=len(self.store.rows('development_versions'))
+        scan(self.store,self.fetcher,SOURCE,{},self.root/'watch',NOW+timedelta(minutes=1))
+        generate(self.store,self.root/'review')
+        fresh=next(r for r in self.store.rows('development_records') if r['id']==record['id'])
+        self.assertEqual(fresh['source_version'],source['id'])
+        self.assertEqual(fresh['content_hash'],record['content_hash'])
+        self.assertEqual(json.loads(fresh['data'])['last_material_change_at'],json.loads(record['data'])['last_material_change_at'])
+        self.assertEqual(len(self.store.rows('development_versions')),before)
+        snapshots=source_checked_watch(self.store,NOW+timedelta(minutes=1))
+        self.assertEqual(len(snapshots),3)
+        for p in snapshots:validate_snapshot(self.store,p,datetime.now(timezone.utc).isoformat())
+        review(self.store,self.gibbs,'approve','Fixture editor','checked',60)
+        explanations=len(self.store.rows('development_report_versions'))
+        for page in self.fetcher.pages:
+            for feature in page['features']:
+                feature['attributes']['OBJECTID']+=10000
+                feature['attributes']['DESCRIPTION']=feature['attributes']['DESCRIPTION'].replace(' ','  ')
+        scan(self.store,self.fetcher,SOURCE,{},self.root/'watch',NOW+timedelta(minutes=2))
+        generate(self.store,self.root/'review')
+        self.assertEqual(len(self.store.rows('development_report_versions')),explanations)
+        self.assertEqual(len(approved_watch(self.store,NOW+timedelta(minutes=2))),1)
+
+    def test_map_uses_verified_coordinates_and_reader_pages_do_not_dump_json(self):
+        from bs4 import BeautifulSoup
+        raw=(self.root/'review/index.html').read_text();soup=BeautifulSoup(raw,'html.parser')
+        map_data=json.loads(soup.select_one('#map-data').string)
+        gibbs=next(p for p in map_data['projects'] if p['id']==5273121)
+        record=next(r for r in self.store.rows('development_records') if r['folder_id']==5273121)
+        geometry=json.loads(record['data'])['geometry']
+        self.assertEqual([gibbs['lng'],gibbs['lat']],[geometry['x'],geometry['y']])
+        self.assertEqual(gibbs['name'],'1010 SW Gibbs St')
+        detail=BeautifulSoup((self.root/'review/5228969/review.html').read_text(),'html.parser')
+        self.assertEqual(detail.select('pre'),[])
+        self.assertIn('How tall is the building?',detail.get_text())
+        self.assertNotIn('HELD FOR REVIEW',detail.get_text())
+        self.assertNotIn('"passage_id"',detail.get_text())
+
+    def test_source_text_cannot_break_the_map_data_script_or_invent_a_location(self):
+        from portland_brief.civic.development_pages import script_data, view_model
+        value=script_data({'name':'</script><script>alert(1)</script>'})
+        self.assertNotIn('<',value)
+        self.assertEqual(json.loads(value)['name'],'</script><script>alert(1)</script>')
+        record=next(r for r in self.store.rows('development_records') if r['folder_id']==5273121)
+        data=json.loads(record['data']);data['geometry']={'x':float('nan'),'y':45};record['data']=json.dumps(data)
+        report=self.store.db.execute('SELECT * FROM development_reports WHERE id=?',(self.gibbs,)).fetchone()
+        version=self.store.db.execute('SELECT * FROM development_report_versions WHERE id=?',(report['current_version'],)).fetchone()
+        project=view_model(record,dict(report),dict(version),[],[])
+        self.assertIsNone(project['lat']);self.assertIsNone(project['lng'])
 
 
 class NoticeTests(unittest.TestCase):

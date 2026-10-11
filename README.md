@@ -66,13 +66,17 @@ For a development you see while driving, use the city's [construction/demolition
 
 This returns bounded official permit records and evidence links, saves private source versions, and uses no model. It preserves each permit's identity and exact status. The initial commercial new-construction monitor described below now runs in the existing daily filings job; broader permit coverage and address-based watchlists remain pending.
 
-The first development reporting focus is **four or more stories with residences and commercial space in the same project**. `filings.development_focus` in `config/tasks.json` controls the height threshold, creation-date lookback and bounded pagination. Official permit descriptions supply the use/height evidence; zoning capacity and housing support offices do not establish a qualifying business component. Conflicting heights or official addresses are held for review. Run the same collection manually:
+The first development reporting focus is **four or more stories with residences and commercial space in the same project**. `filings.development_focus` in `config/tasks.json` controls the height threshold, creation-date lookback and bounded pagination. Official permit descriptions supply the use/height evidence; zoning capacity and housing support offices do not establish a qualifying business component. Conflicting heights or official addresses remain visible as specific open questions. Run the same collection manually:
 
 ```sh
 .venv/bin/portland-civic developments --refresh
 ```
 
-Open `output/development-review/index.html` for three evidence-linked drafts and their review states. `watch.html`/`watch.md` provide the initial screen. The first scan reconciled 141 records across two pages within the chosen one-year Commercial Construction GIS scope. Official permit points now spatially match neighborhood boundaries, and explicit related trade-permit references have been retrieved as separate records. Two reports remain held for conflicting evidence; Gibbs is ready for editorial review. None is approved. The daily brief and repository exporter support **Development Watch** using approved evidence snapshots only. [Development reporting commands and gates](docs/development-reporting.md) explain remaining work.
+Open `output/development-review/index.html` directly in a browser for the **development map**. Click a numbered pin to explore a readable project presentation: what's proposed, homes and business space, the city's exact permit status, location, timeline, linked sources and any open questions. Search by project, neighborhood or address. Street tiles come from the official City map; locally embedded neighborhood boundaries and pins remain usable when tiles are unavailable. No map key or web deployment is needed.
+
+The first scan reconciled 141 records across two pages within the chosen one-year Commercial Construction GIS scope. Three candidates are presented, rather than a complete city/county development map. Explicit related trade permits retain their own identities/statuses. The city status **Under Review** refers to its permit process, not our approval queue.
+
+Development map browsing and daily **draft** coverage no longer require human approval. `filings.draft_review_policy` is `automatic_source_checked`: validate source evidence, disclose disagreements, respect explicit editor holds and include only fresh material updates in the daily brief. Unchanged projects remain on the map without becoming daily filler. Optional human approval is still distinct; the separate approved export excludes unreviewed development blocks. [Development reporting commands and limits](docs/development-reporting.md) explain how this works.
 
 ## Review, edit and approve locally
 
@@ -91,7 +95,7 @@ Open the private review HTML beside the source links. Edit headlines and the `se
 
 These are instructions for an explicit future editor action. The delivered first brief has **not** been approved on Andy's behalf. A local export includes only currently approved summaries/citations and excludes private snippets/model inputs. It retains not-published labels. It is not a deployment. Edit or regenerate an approved edition and approval is invalidated. `reject DATE --editor ... --note ...` rejects a needs-review edition; `reopen DATE ...` reopens an approved edition.
 
-The daily repository review archive is configured; civic reports still require editorial approval and stay private. No public website deployment, domain, newsletter or social account is configured. The fork's inherited GitHub Actions remain disabled. Local review files must never be used as a public hosting directory.
+The daily repository draft archive is configured; source-checked development summaries can join those drafts without human approval. Private project/evidence pages stay local. Meeting reports and the separate approved export retain editorial gates. No public website deployment, domain, newsletter or social account is configured. The fork's inherited GitHub Actions remain disabled. Local review files must never be used as a public hosting directory.
 
 ## Failures, backups and recovery
 

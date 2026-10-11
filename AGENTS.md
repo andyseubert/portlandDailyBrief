@@ -12,7 +12,7 @@ The basic local brief is complete and tested. Advance the broader platform in wo
 
 - Andy authorized local collection/scheduling and summary-only GitHub draft archiving. Repository: `https://github.com/andyseubert/portlandDailyBrief`, branch `main`. Commit and push completed, tested work. No force pushes.
 - A local LaunchAgent runs the independent news, meeting-discovery and filings jobs. The Mac must be awake/available; this is not a cloud runner. Times use `America/Los_Angeles`, with daylight-saving handling.
-- Public website deployment and automatic public civic publication remain disabled. Development and meeting reports require explicit editorial approval. Permission to build a review queue does not authorize the agent to approve its own reports as Andy.
+- Public website deployment and automatic public civic publication remain disabled. Andy requested removing the approval bottleneck for development browsing/draft coverage: these now use automatic source checks and clearly disclosed uncertainty. Meeting reports and explicitly approved exports retain editorial gates. Never invent human approval or approve a report as Andy.
 - No podcasts, voice cloning, social publishing, newsletters, crosswords, source outreach or automated public-record requests. Meeting recordings are source evidence, not an audio publication product. Live meeting capture is not installed/enabled.
 - Andy reported collection permission from Nexstar/KOIN, KGW, KPTV and Advance/OregonLive. These permissions and normal browser User-Agent preferences are recorded in the source registry. Do not repeatedly request confirmation. Respect access restrictions and reuse limits; no paywall bypasses or copied articles.
 - Do not provision paid services, contact people, deploy publicly or change publication permissions without authorization. Continue ordinary reversible implementation and validation without asking.
@@ -25,14 +25,14 @@ The basic local brief is complete and tested. Advance the broader platform in wo
 - Python CLI produces dated Markdown/escaped HTML, local archive/latest pages, evidence-linked summaries, Portland NWS weather and visible source gaps.
 - Eleven news/official feeds are enabled, including authorized OregonLive. Rolling publication windows, late-arrival checkpoints, deduplication, source outages and token limits are implemented.
 - Local Apple-silicon MLX/Qwen text inference uses no paid API. Private evidence/cache/database/model files are ignored by Git. Repository drafts use `posts/YYYY-MM-DD.md` and `.html`, plus `briefings.md`, `briefings.html` and `index.html`. Earlier revisions remain in Git history.
-- The daily renderer supports a **Development Watch** section from explicitly approved, evidence-backed snapshots. Held/unreviewed projects are excluded. Historical explanations retain their own versions and reviewed evidence; Git export validates the editorial audit.
+- The daily renderer supports a **Development Watch** section from automatically source-checked, fresh development snapshots. Conflicting details are disclosed together, not resolved by guessing; an explicit editor hold still excludes a project. Historical explanations retain their own evidence versions. Repository draft export validates snapshots without implying human approval; the separate approved export omits unreviewed development blocks.
 
 ### Development increment — live checks on October 10
 
 - Commercial Construction GIS monitor: **141/141 records**, two pages, within the configured one-year creation-date window. Two height/use matches, one height conflict, 62 needing more evidence, 76 exclusions. This is one layer/window, not all Portland projects.
 - City land-use notice index: **41/41 listed notices**, three pages. Parsed 35 case notices and retained six general information documents without inventing case IDs. Retrieved 36 PDF attachments, 622 pages; 26 pages have no extracted text, including one entirely image-based 12-page appeal. These need visual/OCR review. Index reconciliation is distinct from complete document interpretation.
-- Three private development reports: **1010 SW Gibbs** needs review; **Division Apartments** and **23 Marshall** are held. No live development report is approved.
-- Division: description says six stories, 127 units and retail. GIS uses `2440 SE Cesar E Chavez Blvd`; intake uses `3921 SE Division St`. Official tax-lot/state-ID evidence links them to R184111, but the address-change register says **Pending**. Preserve both addresses and the hold.
+- Three readable private project presentations appear on the development map: **1010 SW Gibbs**, **Division Apartments**, and **23 Marshall**. Their verified official permit points are pinned; click a pin to drill in. Search/filter works locally, including mobile and file URLs. Automatic reporting flags appear as source-linked drafts/open questions, not required approval tasks. No human approval has been recorded.
+- Division: description says six stories, 127 units and retail. GIS uses `2440 SE Cesar E Chavez Blvd`; intake uses `3921 SE Division St`. Official tax-lot/state-ID evidence links them to R184111, but the address-change register says **Pending**. Preserve both addresses and disclose the unresolved discrepancy.
 - Marshall: description says four stories/50 units/commercial shell; numeric field says three stories. Address register retains separate pending/completed changes for the same property. Do not resolve the height from an occupied roof or assume construction occurred.
 - Gibbs: description says four stories, 35 units and commercial ground floor; numeric zero is missing data. No matching row in the scoped intake/building-report queries. That is not denial/withdrawal. A searched older proposal download returned 404; do not claim its contents were retrieved.
 - Official permit-point geometry spatially matches Homestead, Richmond and Northwest District. This does not establish the full project footprint. District boundaries remain separate; two official district geometries are invalid and held.
@@ -49,8 +49,8 @@ The basic local brief is complete and tested. Advance the broader platform in wo
 ## Where we are going — next gates
 
 1. Visually review scanned/empty attachment pages and extract explicit height, use, costs, case IDs, decisions and participation deadlines with page evidence. Resolve the held addresses/heights from sufficient official records; a pending address change is not completion.
-2. Expand durable project histories using explicit land-use/permit identifiers and verified property evidence. Keep related permits and stages separate. Add address-based watchlists and a local development map after the evidence model is sound.
-3. Review a real development draft, record the actual editor and review duration, then verify an approved update through the next daily brief and repository archive. Agent-created test approvals belong only in temporary test databases. Never manufacture production approval to meet this gate.
+2. Expand durable project histories using explicit land-use/permit identifiers and verified property evidence. Keep related permits and stages separate. The local development map is implemented; add address-based watchlists and broader source-backed project coverage next.
+3. Verify automatic source-checked updates through the next daily brief and repository draft archive. Optional human review remains available for final reporting; record the actual editor and duration when used. Agent-created test approvals belong only in temporary databases. Never manufacture production approval to meet a gate.
 4. Build Multnomah County development/zoning ingestion and participation rules as a separate adapter; deliver a checked sample before enabling broader coverage.
 5. Reconcile discovered meetings against processed records; expand official agenda/outcome coverage, then validate one recorded-meeting report. Extend publication/search/backup operations through tested release gates; use `docs/civic-operations.md` and `docs/reference-inventory.md` for current capabilities and limits.
 
@@ -70,9 +70,9 @@ Run from this repository using its existing `.venv`:
 .venv/bin/python -m portland_brief.launch_agent status
 ```
 
-Private development queue: `output/development-review/index.html`. Draft/evidence folders use official folder IDs. `queue.json`, `notice-status.json`, `collection-status.json` and civic SQLite distinguish ingestion, parsing, reconciliation and review.
+Private development map: `output/development-review/index.html`; open directly in a browser. Pins link to readable project presentations, sources, exact city permit statuses and open questions. Official City street tiles supplement locally embedded neighborhood boundaries. Leaflet is locally vendored with its license; no paid map API/key or web hosting is required. Machine records remain separate from the reading experience.
 
-See `docs/development-reporting.md` for approve/edit/hold/correct commands and gates, `docs/development-lookup.md` for official maps, `docs/status.md` for dated validation details, and `README.md` for installation and daily operation. Check actual CLI help before changing commands. The last completed full validation pass was **117 tests**; rerun relevant checks when code changes.
+See `docs/development-reporting.md` for the automatic draft policy and optional approve/edit/hold/correct commands, `docs/development-lookup.md` for official maps, `docs/status.md` for dated validation details, and `README.md` for installation and daily operation. Check actual CLI help before changing commands. The latest full suite passes **123 tests**. Browser checks passed for desktop/mobile, pin navigation, filters, keyboard access, file URLs and missing street tiles. A live 141/141 refresh produced three valid automatic draft snapshots with zero human approvals and no invented material updates.
 
 ## Rules for continuing work
 

@@ -1,5 +1,4 @@
 """Evidence-first development drafts and explicit, versioned editorial review."""
-import html
 import json
 import math
 from pathlib import Path
@@ -11,7 +10,7 @@ from .store import stable_id, stamp
 FIELDS = {'description': ('DESCRIPTION', 'Proposal in the permit description'),
           'status': ('STATUS', 'Official permit status'),
           'application': ('APPLICATION', 'Application number')}
-EXPLANATION_VERSION = 'development-summary/1'
+EXPLANATION_VERSION = 'development-summary/3'
 
 
 def fingerprint(record):
@@ -60,8 +59,41 @@ def text(claim):
     return FIELDS[claim['kind']][1] + ': ' + claim['value']
 
 
+def draft_sentences(store, claims):
+    """Drafts describe conflicting fields together rather than choosing a winner."""
+    from .developments import classify
+    result=[]
+    for claim in claims:
+        sentence=text(claim)
+        if claim['kind']=='description':
+            passage=store.db.execute('SELECT text FROM passages WHERE id=?',(claim['passage_id'],)).fetchone()
+            attrs=json.loads(passage[0]); assessment=classify(attrs)
+            if assessment['status']=='hold_conflict':
+                heights=' and '.join(f'{n:g}' for n in assessment['height_in_description']) or 'no explicit story count'
+                numeric=f"{assessment['height_numeric_field']:g}" if assessment['height_numeric_field'] else 'no usable number'
+                sentence='The application has conflicting height information. '
+                units=assessment['housing_units_reported']
+                if assessment['residential'] and assessment['business']:
+                    sentence='City permit records describe a proposal combining residences and commercial space. '
+                    if type(units) in {int,float} and math.isfinite(units) and units>0:
+                        sentence+=f'The record reports {units:g} proposed housing units. '
+                sentence+='The description lists '+heights+' stories; the separate story-count field reports '+numeric+'. The height remains unconfirmed.'
+        result.append(sentence)
+    return result
+
+
+def draft_notes(record):
+    data=json.loads(record['data']); crosscheck=data.get('intake_crosscheck',{}); facts=crosscheck.get('facts',{})
+    notes=[]
+    if facts.get('status')=='conflict':
+        notes.append({'text':'The GIS and intake records disagree: '+'; '.join(facts['conflicts'])+'. Supporting information is retained; disputed details are not treated as settled.', 'source_url':crosscheck['source_url']})
+    elif facts.get('status')=='not_listed':
+        notes.append({'text':'No matching intake row appeared in the scoped report query. This is a coverage gap, not a denial or withdrawal.', 'source_url':crosscheck['source_url']})
+    return notes
+
+
 def generate(store, output):
-    output = Path(output); output.mkdir(parents=True, exist_ok=True); reports = []
+    output = Path(output); output.mkdir(parents=True, exist_ok=True); reports = []; contexts = []
     for record in store.rows('development_records'):
         data = json.loads(record['data'])
         if data['assessment']['status'] not in {'matches_filter', 'hold_conflict'}:
@@ -94,36 +126,24 @@ def generate(store, output):
         state = old['state'] if unchanged else 'hold' if held else 'needs_review'
         if not unchanged:
             store.upsert('development_reports', id=rid, record_id=record['id'], current_version=vid, state=state)
-            store.db.execute('INSERT OR IGNORE INTO development_report_versions VALUES(?,?,?,?,?,?,?)', (vid, rid, stamp(), digest, json.dumps(bundle, sort_keys=True), json.dumps(claims), json.dumps({'base_generated_version': vid, 'explanation_version': EXPLANATION_VERSION, 'rendered_claims': [text(c) for c in claims], 'issues': held, 'observed_at': data['last_material_change_at'], 'change_kind': data['change_kind']}, sort_keys=True)))
+            store.db.execute('INSERT OR IGNORE INTO development_report_versions VALUES(?,?,?,?,?,?,?)', (vid, rid, stamp(), digest, json.dumps(bundle, sort_keys=True), json.dumps(claims), json.dumps({'base_generated_version': vid, 'explanation_version': EXPLANATION_VERSION, 'rendered_claims': [text(c) for c in claims], 'draft_rendered_claims': draft_sentences(store, claims), 'draft_notes': draft_notes(record), 'issues': held, 'observed_at': data['last_material_change_at'], 'change_kind': data['change_kind']}, sort_keys=True)))
             if old and old['state'] == 'approved':
                 store.db.execute('INSERT INTO development_review_audit(report_id,version_id,action,actor,at,review_seconds,note) VALUES(?,?,?,?,?,?,?)', (rid, vid, 'approval_invalidated', 'evidence_monitor', stamp(), 0, 'Material development evidence changed'))
         report = store.db.execute('SELECT * FROM development_reports WHERE id=?', (rid,)).fetchone()
         version = store.db.execute('SELECT * FROM development_report_versions WHERE id=?', (report['current_version'],)).fetchone()
         claims = json.loads(version['claims']); validate_claims(store, claims, json.loads(version['evidence_bundle']), current=False)
-        heading = ' '.join(str(attrs[k]).strip() for k in ['HOUSE', 'DIRECTION', 'PROPSTREET', 'STREETTYPE'] if attrs[k])
         target = output / str(record['folder_id']); target.mkdir(exist_ok=True)
-        lines = ['# '+heading, '', 'PRIVATE EDITORIAL DRAFT — '+report['state']+'.', '', 'Baseline observation; not evidence of newly proposed activity today.', '']
-        sentences = json.loads(version['data'])['rendered_claims']
-        for claim, sentence in zip(claims, sentences):
-            lines += [sentence, '', f'[Official permit]({record["source_url"]}) · Passage `{claim["passage_id"]}`', '']
-        lines += ['Construction, completion and opening are unverified.', '', '## Review holds', '', *held, '', '## Source reconciliation', '', json.dumps(data.get('intake_crosscheck', {}), indent=2), '', '## Explicit related permit references', '', *related, '', '## Spatial tags for the official permit point', '', json.dumps(tags, indent=2)]
-        (target/'article.md').write_text('\n'.join(lines))
         evidence = []
         for url, source_version in bundle.items():
             evidence.append({'url': url, 'version': source_version, 'passages': [dict(p) for p in store.db.execute('SELECT * FROM passages WHERE version_id=? AND (id=? OR id=?)', (source_version, record['passage_id'], data.get('intake_crosscheck', {}).get('passage_id')))]})
         payload = {'report_id': rid, 'version': report['current_version'], 'state': report['state'], 'claims': claims, 'holds': held, 'evidence': evidence, 'research_evidence': [{**r, 'data': json.loads(r['data'])} for r in research], 'spatial_tags': tags, 'related_identifiers': related}
         (target/'review.json').write_text(json.dumps(payload, indent=2))
-        body = '<h1>'+html.escape(heading)+'</h1><p>Private development review — '+html.escape(report['state'])+'</p><h2>Draft and evidence</h2>'
-        for claim, sentence in zip(claims, sentences):
-            passage = store.db.execute('SELECT * FROM passages WHERE id=?', (claim['passage_id'],)).fetchone()
-            body += '<p>'+html.escape(sentence)+'</p><details><summary>'+html.escape(passage['locator'])+'</summary><pre>'+html.escape(passage['text'])+'</pre></details>'
-        body += '<h2>Holds, official cross-check and spatial evidence</h2><pre>'+html.escape(json.dumps(payload, indent=2))+'</pre>'
-        (target/'review.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Private development review</title><style>body{max-width:900px;margin:2em auto;padding:1em;font:18px system-ui}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style>'+body+'</html>')
+        contexts.append((record, dict(report), dict(version), payload))
         reports.append({'report_id': rid, 'folder_id': record['folder_id'], 'state': report['state'], 'review': str(target/'review.html')})
     store.commit()
     (output/'queue.json').write_text(json.dumps(reports, indent=2))
-    links = ''.join('<li><a href="'+str(r['folder_id'])+'/review.html">Permit '+str(r['folder_id'])+'</a> — '+html.escape(r['state'])+'</li>' for r in reports)
-    (output/'index.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><title>Development review queue</title><h1>Private development review queue</h1><p>Editorial approval required. No automatic publication.</p><ul>'+links+'</ul></html>')
+    from .development_pages import write_pages
+    write_pages(store, output, contexts)
     return reports
 
 
@@ -138,7 +158,7 @@ def review(store, report_id, action, actor, note, review_seconds, edits=None):
     if edits is not None:
         claims = edits['claims']; validate_claims(store, claims, bundle)
         vid = stable_id('development-edited-version', report_id, claims, bundle, action, EXPLANATION_VERSION)
-        store.db.execute('INSERT OR IGNORE INTO development_report_versions VALUES(?,?,?,?,?,?,?)', (vid, report_id, stamp(), version['record_hash'], json.dumps(bundle), json.dumps(claims), json.dumps({**json.loads(version['data']), 'explanation_version': EXPLANATION_VERSION, 'rendered_claims': [text(c) for c in claims], 'actor': actor, 'correction': action == 'correct'})))
+        store.db.execute('INSERT OR IGNORE INTO development_report_versions VALUES(?,?,?,?,?,?,?)', (vid, report_id, stamp(), version['record_hash'], json.dumps(bundle), json.dumps(claims), json.dumps({**json.loads(version['data']), 'explanation_version': EXPLANATION_VERSION, 'rendered_claims': [text(c) for c in claims], 'draft_rendered_claims': draft_sentences(store, claims), 'actor': actor, 'correction': action == 'correct'})))
         store.db.execute('UPDATE development_reports SET current_version=? WHERE id=?', (vid, report_id))
     elif action in {'edit', 'correct'}:
         raise ValueError('Edit/correct requires a structured claims JSON file')
@@ -173,19 +193,52 @@ def approved_watch(store, now, window_hours=24, limit=3):
 
 
 def validate_snapshot(store, project, generated_at):
-    """Historical approval at generation time; current proposals cannot rewrite history."""
+    """Validate immutable draft/reviewed evidence without rewriting history."""
     from ..records import safe_url
     version = store.db.execute('SELECT * FROM development_report_versions WHERE id=? AND report_id=?', (project['version_id'], project['report_id'])).fetchone()
     report = store.db.execute('SELECT * FROM development_reports WHERE id=?', (project['report_id'],)).fetchone()
     record = store.db.execute('SELECT * FROM development_records WHERE id=?', (report['record_id'],)).fetchone() if report else None
     audit = store.db.execute('SELECT * FROM development_review_audit WHERE report_id=? AND at<=? ORDER BY id DESC LIMIT 1', (project['report_id'], generated_at)).fetchone()
-    if not version or not record or not audit or audit['action'] != 'approve' or audit['version_id'] != version['id']:
-        raise ValueError('Development snapshot lacks editorial approval at generation time')
-    if project['editorial_state'] != 'approved' or project['folder_id'] != record['folder_id'] or project['source_url'] != record['source_url']:
+    if not version or not record:
+        raise ValueError('Development snapshot lacks its stored evidence version')
+    if project['editorial_state'] == 'approved':
+        if not audit or audit['action'] != 'approve' or audit['version_id'] != version['id']:
+            raise ValueError('Development snapshot lacks editorial approval at generation time')
+        rendered=json.loads(version['data'])['rendered_claims']
+    elif project['editorial_state'] == 'source_checked_draft':
+        rendered=json.loads(version['data'])['draft_rendered_claims']
+        if project.get('notes') != json.loads(version['data'])['draft_notes']:
+            raise ValueError('Development caveats differ from the stored evidence version')
+        if any(note['source_url'] not in project['evidence_bundle'] for note in project['notes']):
+            raise ValueError('Development caveat lacks its supporting source')
+        if rendered != draft_sentences(store,json.loads(version['claims'])):
+            raise ValueError('Draft explanation conflicts with the stored official fields')
+    else:
+        raise ValueError('Unknown development editorial state')
+    if project['folder_id'] != record['folder_id'] or project['source_url'] != record['source_url']:
         raise ValueError('Development snapshot identity conflicts with the stored official record')
     if project['claims'] != json.loads(version['claims']) or project['evidence_bundle'] != json.loads(version['evidence_bundle']):
         raise ValueError('Development snapshot differs from its reviewed version')
-    if project['sentences'] != json.loads(version['data'])['rendered_claims']:
+    if project['sentences'] != rendered:
         raise ValueError('Development explanation differs from its reviewed version')
     safe_url(project['source_url'], ['www.portlandmaps.com'])
     validate_claims(store, project['claims'], project['evidence_bundle'], current=False)
+
+
+def source_checked_watch(store, now, window_hours=24, limit=3):
+    """Automatically available drafts; no human approval is manufactured."""
+    from datetime import datetime
+    result=[]
+    for report in store.rows('development_reports'):
+        latest=store.db.execute('SELECT action FROM development_review_audit WHERE report_id=? ORDER BY id DESC LIMIT 1',(report['id'],)).fetchone()
+        if latest and latest[0]=='hold':continue
+        record=store.db.execute('SELECT * FROM development_records WHERE id=?',(report['record_id'],)).fetchone()
+        version=store.db.execute('SELECT * FROM development_report_versions WHERE id=?',(report['current_version'],)).fetchone()
+        data=json.loads(version['data']); delta=(now-datetime.fromisoformat(data['observed_at'])).total_seconds()
+        if not 0 <= delta <= window_hours*3600 or fingerprint(record)!=version['record_hash']:continue
+        if 'draft_rendered_claims' not in data:continue
+        claims=json.loads(version['claims']);bundle=json.loads(version['evidence_bundle'])
+        try:validate_claims(store,claims,bundle)
+        except ValueError:continue
+        result.append({'report_id':report['id'],'version_id':version['id'],'folder_id':record['folder_id'],'source_url':record['source_url'],'observed_at':data['observed_at'],'change_kind':data['change_kind'],'claims':claims,'sentences':data['draft_rendered_claims'],'notes':data['draft_notes'],'evidence_bundle':bundle,'editorial_state':'source_checked_draft'})
+    return sorted(result,key=lambda r:(r['observed_at'],r['folder_id']),reverse=True)[:limit]

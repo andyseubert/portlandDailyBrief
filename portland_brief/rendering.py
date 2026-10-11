@@ -63,9 +63,12 @@ def markdown(doc, repository=False):
     if not doc["stories"]:
         lines += ["", "No supported Portland story summaries were produced for this window. No quota was filled."]
     if doc.get('development_watch'):
-        lines += ['', '## Development Watch', '', 'Editor-reviewed permit records. Initial discoveries are a baseline, not proof of new activity today.', '']
+        label='Editor-reviewed permit records.' if all(p['editorial_state']=='approved' for p in doc['development_watch']) else 'Automatically checked, source-linked drafts. Uncertain details are disclosed; human approval is not implied.'
+        lines += ['', '## Development Watch', '', label+' Initial discoveries are a baseline, not proof of new activity today.', '']
         for project in doc['development_watch']:
-            lines += [f"### Permit {project['folder_id']}", '', *[esc(sentence) for sentence in project['sentences']], '', f"[Official permit]({project['source_url']}) · Reviewed version `{project['version_id']}`", '', 'Construction, completion and business opening remain unverified.', '']
+            lines += [f"### Permit {project['folder_id']}", '', *[esc(sentence) for sentence in project['sentences']], '', f"[Official permit]({project['source_url']}) · Evidence version `{project['version_id']}`", '', 'Construction, completion and business opening remain unverified.', '']
+            for note in project.get('notes',[]):
+                lines += [esc(note['text']), '', f"[Supporting official report]({note['source_url']})", '']
     lines += ["", "## Run information", "", f"Local model: {esc(doc['usage']['model'])}. Input tokens: {doc['usage']['input_tokens']}; output tokens: {doc['usage']['output_tokens']}; model attempts: {doc['usage']['attempts']}. API cost: $0.", "", "Publishing disabled. Scheduling " + ('enabled' if doc.get('scheduling') else 'disabled') + ". Source health and evidence are retained in the private run record.", ""]
     result = "\n".join(lines)
     if repository:
@@ -100,9 +103,12 @@ def html(doc, root_index=False, repository=False):
     if not doc["stories"]:
         content.append("<p>No supported stories were produced for this window; no quota was filled.</p>")
     if doc.get('development_watch'):
-        content.append('<h2>Development Watch</h2><p>Editor-reviewed permit records. Initial discoveries are a baseline, not proof of new activity today.</p>')
+        label='Editor-reviewed permit records.' if all(p['editorial_state']=='approved' for p in doc['development_watch']) else 'Automatically checked, source-linked drafts. Uncertain details are disclosed; human approval is not implied.'
+        content.append('<h2>Development Watch</h2><p>'+label+' Initial discoveries are a baseline, not proof of new activity today.</p>')
         for project in doc['development_watch']:
-            content.append('<article><h3>Permit '+str(project['folder_id'])+'</h3>'+''.join('<p>'+e(sentence)+'</p>' for sentence in project['sentences'])+'<p><a href="'+e(project['source_url'], quote=True)+'">Official permit</a> · Reviewed version '+e(project['version_id'])+'</p><p>Construction, completion and business opening remain unverified.</p></article>')
+            content.append('<article><h3>Permit '+str(project['folder_id'])+'</h3>'+''.join('<p>'+e(sentence)+'</p>' for sentence in project['sentences'])+'<p><a href="'+e(project['source_url'], quote=True)+'">Official permit</a> · Evidence version '+e(project['version_id'])+'</p><p>Construction, completion and business opening remain unverified.</p></article>')
+            for note in project.get('notes',[]):
+                content.append('<p>'+e(note['text'])+' <a href="'+e(note['source_url'],quote=True)+'">Supporting official report</a></p>')
     operation = 'Publishing disabled; local scheduling enabled.' if doc.get('scheduling') else 'Publishing and scheduling disabled.'
     content.append(f'<footer class="meta">Local model: {e(doc["usage"]["model"])}. Input/output tokens: {doc["usage"]["input_tokens"]}/{doc["usage"]["output_tokens"]}. API cost $0. {operation}</footer>')
     nav = '<a href="archive/index.html">Dated drafts</a>' if root_index else '<a href="../../index.html">Latest draft</a><a href="../index.html">Dated drafts</a>'

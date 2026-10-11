@@ -5,3 +5,7 @@ tests/fixtures/*.pdf -text -diff -whitespace
 tests/fixtures/portland-permits-6866-se-87th.json -text -diff -whitespace
 tests/fixtures/portland-commercial-construction-page-*.json -text -diff -whitespace
 tests/fixtures/portland-division-*.json -text -diff -whitespace
+# Pinned, licensed third-party distribution files; review provenance.json.
+portland_brief/civic/assets/vendor/leaflet/leaflet.js -text -diff -whitespace
+portland_brief/civic/assets/vendor/leaflet/leaflet.css -text -diff -whitespace
+portland_brief/civic/assets/vendor/leaflet/LICENSE -text -whitespace

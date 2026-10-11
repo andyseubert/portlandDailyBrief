@@ -63,6 +63,7 @@
     "coverage_priority": "city_and_county_development_and_zoning",
     "notice_collection": {"max_pages": 4, "max_notices": 100, "attachments": true},
     "research_focused_projects": true,
+    "draft_review_policy": "automatic_source_checked",
     "development_focus": {
       "minimum_stories": 4,
       "lookback_days": 365,
@@ -86,6 +87,7 @@
     "remote_url": "https://github.com/andyseubert/portlandDailyBrief.git",
     "format": "posts/YYYY-MM-DD.html and .md; briefings.html, briefings.md, index.html",
     "draft_sharing_authorized": "Andy Seubert, 2026-10-10",
-    "editorial_approval_required_for_civic_reports": true
+    "editorial_approval_required_for_meeting_reports": true,
+    "development_drafts": "automatic source checks; disclose uncertainty; no human approval implied"
   }
 }
