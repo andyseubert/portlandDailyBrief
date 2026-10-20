@@ -2,6 +2,8 @@
 
 An independently written Python application for Portland and Multnomah County written news. [Read the daily brief archive](briefings.md). The reference repository remains in Git history because Andy requested a fork; no Tucson implementation, prompts, branding, articles or assets are used by the Portland application.
 
+Returning to the project? Read [the session handoff](docs/handoff.md) and [AGENTS.md](AGENTS.md) for current state, unresolved issues and restart commands. The handoff was checked October 20, 2026; older dated coverage figures are historical snapshots.
+
 ## Current operation
 
 Daily brief: live feeds → recent local candidates → event deduplication → local text model → evidence validation → private editorial versions → dated Markdown and escaped HTML. Andy authorized daily generation and sharing review drafts in this repository on October 10, 2026. The Mac runner targets **7:00 a.m. America/Los_Angeles**, catches up after wake/login, and commits/pushes summary-only snapshots. Review drafts are not editor-approved reporting. Read [implementation status](docs/status.md) for actual coverage and limits.

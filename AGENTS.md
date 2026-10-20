@@ -1,6 +1,19 @@
 # Portland Daily Brief — working instructions and project state
 
-Last updated: October 10, 2026, America/Los_Angeles. Update this file after each meaningful milestone. Keep completed work, live coverage, unresolved evidence and next steps accurate; designs are not proof of working features.
+Last updated: October 20, 2026, America/Los_Angeles. Update this file after each meaningful milestone. Keep completed work, live coverage, unresolved evidence and next steps accurate; designs are not proof of working features.
+
+## Resuming after the session close
+
+Read `docs/handoff.md` first for the October 20 operational snapshot, current faults, file locations and exact resume commands. Read this file for standing instructions. The user's final request was to preserve continuity, not start another feature build. No implementation work is left uncommitted from the map/draft-policy increment (`be07232`); daily archive commits continued afterward.
+
+The October 10 coverage figures below are historical baselines, not today's inventory. As checked October 20 around 9:23 a.m. PDT:
+
+- Twelve dated briefs exist, October 9–20 inclusive; today's archive commit is `9114e14`. The October 11 brief contains all three automatic Development Watch drafts, so the draft-to-daily-to-Git integration gate has been exercised.
+- The user LaunchAgent is loaded, checks every 60 seconds and last exited with code zero. Daily synthesis remains 7 a.m. LA; the next persisted occurrence is October 21 at 7 a.m. Closing the chat does not remove this runner. The Mac/user session and network must be available; sleep/offline periods limit collection.
+- The October 19 filings scan reconciled 143/143 commercial records and 35/35 currently listed notices. There are 146 retained commercial record identities, not 146 current-scan results. The map still has three candidates. Notice attachment processing remains incomplete: 30 PDFs, 369 pages, 21 pages without extracted text in that run. Do not infer deletions from counts changing in a bounded window/current listing.
+- Civic storage holds 1,605 meeting identities: 1,603 discovered, one partial and one processed, plus four needs-review phase reports. Distinct calendar/agenda IDs are not reconciled comprehensively. There are no capture jobs, transcript segments or human approval audit entries.
+- Current reliability issues need investigation first: October 20 meeting scans returned stale-cache/fetch failures for all five configured meeting inventories despite scheduler exit code zero. Today's brief discloses a county-source cache temporary-file rename error. These failures are not withdrawals or proof of complete coverage. See the handoff for exact evidence and likely investigation points.
+- Last recorded full validation remains the October 10 implementation run: 123 passing tests plus browser checks. This October 20 handoff is documentation-only; no new source collection, model generation or test run was performed.
 
 ## Goal
 
@@ -50,7 +63,7 @@ The basic local brief is complete and tested. Advance the broader platform in wo
 
 1. Visually review scanned/empty attachment pages and extract explicit height, use, costs, case IDs, decisions and participation deadlines with page evidence. Resolve the held addresses/heights from sufficient official records; a pending address change is not completion.
 2. Expand durable project histories using explicit land-use/permit identifiers and verified property evidence. Keep related permits and stages separate. The local development map is implemented; add address-based watchlists and broader source-backed project coverage next.
-3. Verify automatic source-checked updates through the next daily brief and repository draft archive. Optional human review remains available for final reporting; record the actual editor and duration when used. Agent-created test approvals belong only in temporary databases. Never manufacture production approval to meet a gate.
+3. The October 11 brief verifies automatic source-checked development drafts through daily synthesis and the repository archive. Preserve this behavior when fixing reliability and adding project histories; unchanged projects must not become daily filler. Optional human review remains available for final reporting; record the actual editor and duration when used. Never manufacture production approval.
 4. Build Multnomah County development/zoning ingestion and participation rules as a separate adapter; deliver a checked sample before enabling broader coverage.
 5. Reconcile discovered meetings against processed records; expand official agenda/outcome coverage, then validate one recorded-meeting report. Extend publication/search/backup operations through tested release gates; use `docs/civic-operations.md` and `docs/reference-inventory.md` for current capabilities and limits.
 
@@ -72,7 +85,7 @@ Run from this repository using its existing `.venv`:
 
 Private development map: `output/development-review/index.html`; open directly in a browser. Pins link to readable project presentations, sources, exact city permit statuses and open questions. Official City street tiles supplement locally embedded neighborhood boundaries. Leaflet is locally vendored with its license; no paid map API/key or web hosting is required. Machine records remain separate from the reading experience.
 
-See `docs/development-reporting.md` for the automatic draft policy and optional approve/edit/hold/correct commands, `docs/development-lookup.md` for official maps, `docs/status.md` for dated validation details, and `README.md` for installation and daily operation. Check actual CLI help before changing commands. The latest full suite passes **123 tests**. Browser checks passed for desktop/mobile, pin navigation, filters, keyboard access, file URLs and missing street tiles. A live 141/141 refresh produced three valid automatic draft snapshots with zero human approvals and no invented material updates.
+See `docs/development-reporting.md` for the automatic draft policy and optional approve/edit/hold/correct commands, `docs/development-lookup.md` for official maps, `docs/status.md` for dated validation details, and `README.md` for installation and daily operation. Check actual CLI help before changing commands. The last completed full suite on October 10 passed **123 tests**, with browser checks for desktop/mobile, pin navigation, filters, keyboard access, file URLs and missing street tiles. That day's 141/141 live refresh produced three valid automatic draft snapshots with zero human approvals and no invented material updates. See the resume section for newer operational observations.
 
 ## Rules for continuing work
 
