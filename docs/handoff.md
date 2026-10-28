@@ -4,6 +4,8 @@
 
 Andy authorized Council & Elections Watch, then clarified that council meetings, decisions and local-government news must remain highlighted **after elections**. He also requested output RSS, personal daily email, logo concepts and domain research. This supersedes the earlier development-first next-step order. The reliability increment below is committed as `0e2ebcb`.
 
+Implementation was committed and pushed as `14ebc6a`. After push, the public RSS URL returned HTTP 200 and parsed as RSS with twenty dated items, latest October 28. Final browser QA measured no horizontal overflow at an emulated 390-pixel viewport for the queue, news page, daily-layout preview and report drill-in; desktop was checked at 1440 pixels. The isolated QA browser was closed afterward. The latest full suite passed 169 tests; no real email, domain purchase or production human approval occurred.
+
 Implemented a permanent hourly `council-watch` job within the existing scheduler/LaunchAgent. It follows current official body-index links, revisits recent agendas for outcomes, extracts linked document facts and separately discovers proposed amendment/exhibit files. Separate budgets rotate work (twelve agenda pages, twenty-four documents, six attachments); deferred-per-run counts are not counts of never-processed records. Government and election news gets a permanent daily section and priority after normal eligibility/evidence checks. Known full names include all official candidates, not just incumbents; similar candidate headlines are kept separate.
 
 Read now:
