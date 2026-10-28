@@ -1,6 +1,45 @@
 # Session handoff — October 28, 2026
 
-## Current resume point
+## Current resume point — permanent government coverage and distribution
+
+Andy authorized Council & Elections Watch, then clarified that council meetings, decisions and local-government news must remain highlighted **after elections**. He also requested output RSS, personal daily email, logo concepts and domain research. This supersedes the earlier development-first next-step order. The reliability increment below is committed as `0e2ebcb`.
+
+Implemented a permanent hourly `council-watch` job within the existing scheduler/LaunchAgent. It follows current official body-index links, revisits recent agendas for outcomes, extracts linked document facts and separately discovers proposed amendment/exhibit files. Separate budgets rotate work (twelve agenda pages, twenty-four documents, six attachments); deferred-per-run counts are not counts of never-processed records. Government and election news gets a permanent daily section and priority after normal eligibility/evidence checks. Known full names include all official candidates, not just incumbents; similar candidate headlines are kept separate.
+
+Read now:
+
+- `output/council-watch/index.html`: private session/item reading queue with linked preview/action/follow-up drafts, official sources and identity/source holds.
+- `output/council-watch/news.html`: seven matching recent buffered government/election headlines in the live sample, including stories outside daily selection, with source times/inclusion status.
+- `output/council-watch/brief-preview-2026-10-28.html`: private layout preview combining existing October 28 news summaries with current notice metadata; not a regenerated archived edition.
+- `feed.xml`: subscribable summary-only output, canonical URL `https://raw.githubusercontent.com/andyseubert/portlandDailyBrief/main/feed.xml`. The existing archive sync updates it. It initially includes twenty October 9–28 editions; the next regular daily synthesis adds the new government section.
+- `assets/branding/identity-preview.html` and `logo-concepts-v1.png`: original logo explorations; center bridge/river monogram recommended, selection pending.
+
+Live acceptance: six body indexes, ten agenda pages, thirteen sessions within the configured window. This week's October 28–29 council sessions and October 29 Committee of the Whole have private previews; their retrieved agendas did not yet contain outcomes. Earlier official dispositions generated separate action/follow-up drafts. The latest manual run (`output/council-watch-live-2026-10-28-final.json`, 19:09 UTC) checked twenty-four linked documents and six PDFs (fifteen pages, zero empty pages in that run), with zero request/parse errors. Across watched agendas it listed 181 attachments; 163 still lacked complete extracted text. Repeated scheduled/manual runs rotate the backlog; inspect current run metadata before quoting counts. Source bytes, extraction and interpretation remain distinct.
+
+Civic storage at inspection: 1,628 meeting identities (1,613 discovered, one partial, fourteen processed); 37 phase reports (15 before, 11 after, 11 follow-through), all `needs_review`; zero human approval audits, captures or transcript segments. Processed means agenda extraction, not reviewed journalism, and calendar/agenda identities remain unreconciled. The recurring Committee Chair updates URL remains a real identity hold: preserve both 2026-373 and 2026-388. An affected appearance keeps its evidence and no guessed matter association; report approval is blocked until reconciliation. No final adoption/votes are inferred from attendance, proposals or time passing.
+
+Public daily/RSS output permits official meeting-notice metadata, with exact source version and immutable check record, plus actually approved structured meeting claims. Unreviewed meeting narratives stay private. Snapshot/export validation rejects forged approvals, modified claims, held/invalidated versions and mismatched notices. Document parsing now uses `official-document-v2` to add separate amendment links. Unchanged document refreshes preserve previously extracted attachment page evidence. Removed agenda items remain in history but are filtered from current report claims.
+
+Email: a tested personal-delivery implementation exists in `portland_brief/delivery.py` (plain/HTML `.eml`, authenticated TLS SMTP, private settings/Keychain lookup, durable once-per-date/recipient ledger, held uncertain sends). **No real email was sent and `email_delivery.enabled` is false.** Andy's recipient and authenticated sender are still missing. A Gmail connection was suggested but not confirmed; it also does not automatically supply unattended Mac SMTP credentials. `output/daily-email-preview.eml` is explicitly a placeholder addressed to `recipient@example.invalid`. Do not treat it as delivery. See `docs/distribution.md` before configuration; never put credentials/actual addresses in tracked files or chat.
+
+Domain research: October 28 Verisign `.com` RDAP requests returned no registration records for `portlanddailybrief.com`, `portlandcivicbrief.com`, `pdxbrief.com`, and `portlandcivicwatch.com`. Recommended default is `portlanddailybrief.com`; registrar confirmation, name choice and any purchase remain pending. No paid provider, domain purchase, mass newsletter, public website deployment, live capture or new text-model generation occurred. Original image generation was used for the logo sheet; no measured image cost or human editorial review time is claimed.
+
+Validation: **169 tests pass**. Added real official fixtures for this week's agendas, ballot names and council-rules document. Checks cover permanent post-election priority, eligibility/source privacy, candidate separation, bounded rotation, actual daily-pipeline integration, missing outcomes, unchanged evidence, removed items, identity holds, approval/export safeguards, RSS validity/deduplication, email TLS, no-old-edition delivery, missing credentials and uncertain-send/duplicate guards. Local headless Chrome QA covers desktop and emulated mobile file URLs for the reading queue, news page, daily-layout preview and report links. No meeting approval was performed in production.
+
+Current scheduler evidence: `council-watch` successfully ran under LaunchAgent (`data/scheduler/council-watch-20261028T185437.log`, exit 0); it is pending on its hourly cadence. Daily synthesis remains October 29 at 7 a.m. LA. The existing runner, not chat, maintains coverage while the Mac/session/network are available.
+
+Next actions: obtain recipient/sender and final logo/domain choice; verify the next normal daily section and feed; refresh this week's agendas for official outcomes and review real reports before any narrative export; continue URL reconciliation, attachment interpretation, county adapters and filings-health audit. No broad publication approval follows from a request for personal email or RSS. Keep `data/`, `output/`, credentials and raw publisher evidence ignored; only validated summaries, implementation, official acceptance fixtures and original branding assets are tracked.
+
+```sh
+git status --short --branch
+.venv/bin/portland-civic council-watch --refresh
+.venv/bin/python -m unittest discover -s tests -q
+.venv/bin/python -m portland_brief.delivery
+```
+
+The email command previews only and requires private configuration. Do not use `--send` until actual recipient/authenticated sender exist. See [government coverage](government-watch.md) and [distribution/identity](distribution.md) for precise commands and constraints.
+
+## Earlier October 28 reliability handoff
 
 Andy resumed on October 28 with “pick up where we left off.” Read this section and `AGENTS.md` before the historical October 20 handoff below. The completed increment fixes shared-cache races and meeting failure reporting; development histories, scanned attachment interpretation and county ingestion remain later gates. No daily edition was regenerated, model invoked, human approval recorded, publication permission changed or website deployed.
 

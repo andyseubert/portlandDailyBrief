@@ -2,6 +2,7 @@ from collections import Counter
 from datetime import timedelta
 import re
 from .records import canonical_url, parse_time, words
+from .government import is_government, known_name
 
 LOCAL = re.compile(r"\b(portland|multnomah|gresham|troutdale|fairview|wood village|PPS|providence park|willamette river|lents|hazelwood|st\.? johns|roosevelt high|sizzle pie)\b", re.I)
 OUTSIDE = re.compile(r"\b(salem|keizer|deschutes|bend|eugene|la grande|tillamook|hillsboro|tigard|newberg|beaverton|oregon coast|washington['’]s|gulf coast)\b", re.I)
@@ -27,6 +28,8 @@ def relevant(item, settings):
         return True
     if PROMO.search(item.title):
         return False
+    if known_name(item, settings):
+        return True
     # A comparison to Portland is not itself an explicit Portland impact.
     if OUTSIDE.search(item.title) and re.search(r"modeled after|similar to|inspired by", item.title, re.I):
         return False
@@ -38,9 +41,15 @@ def relevant(item, settings):
     return bool(LOCAL.search(text))
 
 
-def overlapping(a, b):
+def overlapping(a, b, settings=None):
     if canonical_url(a.url) == canonical_url(b.url):
         return True
+    if settings:
+        def named_people(item):
+            return {name for name in settings.get('government_names',[]) if re.search(r'(?<!\w)'+re.escape(name)+r'(?!\w)',item.title,re.I)}
+        people_a, people_b = named_people(a), named_people(b)
+        if people_a and people_b and people_a.isdisjoint(people_b):
+            return False
     ca, cb = official_case_ids(a), official_case_ids(b)
     if ca and cb:
         if ca.isdisjoint(cb):
@@ -83,12 +92,14 @@ def select(items, now, settings):
         score += 2 if re.search(r"council|schools?|ice|fire|government|court|budget|water|closure", t) else 0
         score += 1 if re.search(r"portland|multnomah", t) else 0
         score += sum(p['weight'] for p in priority_matches(item, settings))
-        return score, parse_time(item.published_at).timestamp()
+        # Government coverage has permanent prominence, including after voting.
+        government = bool(settings.get('government_watch', {}).get('enabled')) and is_government(item,settings)
+        return government, score, parse_time(item.published_at).timestamp()
     eligible.sort(key=rank, reverse=True)
     selected, clusters, source_counts = [], {}, Counter()
     for item in eligible:
         group = settings.get('source_balance_groups', {}).get(item.source_id, item.source_id)
-        duplicate = next((chosen for chosen in selected if overlapping(item, chosen)), None)
+        duplicate = next((chosen for chosen in selected if overlapping(item, chosen, settings)), None)
         if duplicate:
             clusters.setdefault(duplicate.id, []).append(item.id)
             counts["duplicate_coverage"] += 1

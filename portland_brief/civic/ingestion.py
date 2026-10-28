@@ -107,18 +107,25 @@ def ingest_agenda(store, data, url, body='portland:council'):
         store.fact('meeting', meeting_id, 'starts_at', session['starts_at'], sp)
         for item in session['items']:
             mid = None
+            identity_warnings = []
             if item['document_url']:
-                mid = store.matter(bodyrow['jurisdiction_id'], item['document_number'], item['document_url'], item['title'], {'introduced_by': item['introduced_by'], 'responsible_department': item['responsible_department']})
-                if item['action_type'] == 'adoption':
+                try:
+                    mid = store.matter(bodyrow['jurisdiction_id'], item['document_number'], item['document_url'], item['title'], {'introduced_by': item['introduced_by'], 'responsible_department': item['responsible_department']})
+                except IdentifierConflict as exc:
+                    # Keep the agenda appearance/evidence, but never attach it to
+                    # a guessed matter when an official URL has been reused.
+                    identity_warnings.append(str(exc))
+                if mid and item['action_type'] == 'adoption':
                     adopted_day = datetime.fromisoformat(session['starts_at'].replace('Z', '+00:00')).astimezone(ZoneInfo('America/Los_Angeles')).date().isoformat()
                     store.matter(bodyrow['jurisdiction_id'], item['document_number'], item['document_url'], item['title'], {'adoption_date': adopted_day, 'adoption_evidence': {'agenda_url': url, 'source_version': version, 'official_disposition': item['official_disposition']}})
                 for kind in ['ordinance', 'resolution']:
-                    if item[kind + '_number']:
+                    if mid and item[kind + '_number']:
                         store.adopted_identifier(bodyrow['jurisdiction_id'], mid, kind, item[kind + '_number'])
-                store.upsert('documents', id=stable_id('document', item['document_url']), matter_id=mid, source_url=item['document_url'], kind=item['event_kind'], data={'official_number': item['document_number']})
+                if mid:
+                    store.upsert('documents', id=stable_id('document', item['document_url']), matter_id=mid, source_url=item['document_url'], kind=item['event_kind'], data={'official_number': item['document_number']})
             aid = stable_id('appearance', meeting_id, item['official_relation_id'] or item['agenda_number'])
             passage = store.passage(version, item['locator'], item['passage'])
-            structured = {**item, 'source_version': version, 'passage_id': passage}
+            structured = {**item, 'source_version': version, 'passage_id': passage, 'identity_warnings': identity_warnings}
             store.upsert('appearances', id=aid, meeting_id=meeting_id, matter_id=mid, agenda_number=item['agenda_number'], official_disposition=item['official_disposition'], action_type=item['action_type'], data=structured)
             for predicate in ['title', 'official_disposition', 'notes', 'responsible_department', 'introduced_by', 'neighborhood_fields', 'agenda_note', 'registration_urls']:
                 if item[predicate]:
@@ -264,7 +271,7 @@ def ingest_document(store, fetcher, url, attachments=False):
     if meta.get('status') == 'stale_cache':
         raise RuntimeError('Live document fetch failed')
     parsed = parsers.document_detail(data, url)
-    version, changed = store.source_version(url, data, parsers.PARSER_VERSION, parsed)
+    version, changed = store.source_version(url, data, parsers.DOCUMENT_PARSER_VERSION, parsed)
     mid = store.matter('portland', parsed['document_number'], url, parsed['title'], {'document_source_version': version})
     for predicate, value in parsed['facts'].items():
         if value:
@@ -272,7 +279,11 @@ def ingest_document(store, fetcher, url, attachments=False):
             store.fact('matter', mid, predicate, value, passage)
     results = []
     for attachment in parsed['attachments']:
-        store.upsert('documents', id=stable_id('document', attachment['url']), matter_id=mid, source_url=attachment['url'], kind='attachment', data={'label': attachment['label'], 'parent_version': version, 'content_status': 'not_fetched'})
+        document_id = stable_id('document', attachment['url'])
+        old = store.db.execute('SELECT data FROM documents WHERE id=?',(document_id,)).fetchone()
+        metadata = {**(json.loads(old[0]) if old else {}), 'label':attachment['label'], 'attachment_role':attachment.get('role','exhibit'), 'parent_version':version}
+        metadata.setdefault('content_status','not_fetched')
+        store.upsert('documents', id=document_id, matter_id=mid, source_url=attachment['url'], kind='attachment', data=metadata)
         if attachments:
             try:
                 body, status = fetcher.get(attachment['url'], 'binary')
@@ -280,7 +291,10 @@ def ingest_document(store, fetcher, url, attachments=False):
                     raise RuntimeError('Attachment fetch failed')
                 import hashlib
                 avid, achanged = store.source_version(attachment['url'], body, 'attachment-bytes-v1', {'content_hash': hashlib.sha256(body).hexdigest()})
-                store.upsert('documents', id=stable_id('document', attachment['url']), matter_id=mid, source_url=attachment['url'], kind='attachment', data={'label': attachment['label'], 'source_version': avid, 'content_status': 'retrieved_not_text_extracted'})
+                if metadata.get('source_version') != avid:
+                    metadata = {k:v for k,v in metadata.items() if k not in {'page_passages','pages','empty_or_scan_pages','review_warnings','extraction_version'}}
+                    metadata['content_status'] = 'retrieved_not_text_extracted'
+                store.upsert('documents', id=document_id, matter_id=mid, source_url=attachment['url'], kind='attachment', data={**metadata,'source_version':avid})
                 results.append({'url': attachment['url'], 'changed': achanged, 'version': avid})
             except Exception as exc:
                 store.failed_retrieval('meetings', attachment['url'], exc)

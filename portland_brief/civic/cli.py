@@ -51,6 +51,8 @@ def main(argv=None):
     pdf = sub.add_parser('extract-attachment'); pdf.add_argument('document_id')
     event = sub.add_parser('inspect-event'); event.add_argument('meeting_id')
     sub.add_parser('status')
+    council = sub.add_parser('council-watch', help='Refresh permanent council agenda/outcome coverage and the private review page')
+    council.add_argument('--refresh', action='store_true')
     sub.add_parser('vocabulary')
     sub.add_parser('reconcile-votes')
     filing = sub.add_parser('import-filing')
@@ -133,6 +135,11 @@ def main(argv=None):
                 elif args.command == 'development-evidence':
                     from .development_evidence import research
                     result = research(store, fetcher, datetime.now(ZoneInfo('America/Los_Angeles')).strftime('%m/%d/%Y'))
+                elif args.command == 'council-watch':
+                    from .government_watch import collect, write_news_queue
+                    cfg = json.loads((root / 'config/tasks.json').read_text()).get('government_watch', {})
+                    result = collect(store,fetcher,cfg,root / settings['output_path'] / 'council-watch')
+                    result['news_candidates'] = write_news_queue(store,root,settings)
                 elif args.command == 'review-development':
                     from .development_reports import review
                     result = review(store, args.report_id, args.action, args.editor, args.note, args.review_seconds, json.loads(args.file.read_text()) if args.file else None)
@@ -238,6 +245,8 @@ def main(argv=None):
                     target.close()
                     result = {'backup': str(args.out), 'source_artifacts': str(database.parent / 'source-versions'), 'note': 'Back up source-versions and capture directories with the database.'}
         print(json.dumps(result, indent=2, ensure_ascii=False))
+        if args.command == 'council-watch' and result['errors']:
+            return 1
         if args.command == 'discover' and any(r.get('error') or r.get('errors') for r in result):
             # A deliberate page budget is partial coverage, not an outage.
             # Actual fetch/parse failures must reach the scheduler's retry logic.

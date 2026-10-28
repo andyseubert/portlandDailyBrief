@@ -16,7 +16,7 @@ from .rendering import atomic_text, html, markdown, page
 from .storage import Store
 from .validation import validate_story
 
-ARCHIVE_PATHS = ['posts', 'briefings.html', 'briefings.md', 'index.html']
+ARCHIVE_PATHS = ['posts', 'briefings.html', 'briefings.md', 'index.html', 'feed.xml']
 
 
 def git(root, *args):
@@ -46,6 +46,12 @@ def validate(doc, registry, civic_store=None):
         from .civic.development_reports import validate_snapshot
         for project in doc['development_watch']:
             validate_snapshot(civic_store, project, doc['generated_at'])
+    if doc.get('government_watch'):
+        if civic_store is None:
+            raise ValueError('Government watch requires its official evidence and approval audit')
+        from .civic.government_watch import validate_snapshot
+        from .records import parse_time
+        validate_snapshot(civic_store,doc['government_watch'],parse_time(doc['generated_at']))
 
 
 def export(root):
@@ -65,7 +71,14 @@ def export(root):
                 _, doc = store.get(edition['date'])
                 validate(doc, registry, civic)
                 documents.append(doc)
+            rss_config = json.loads((root/'config/tasks.json').read_text()).get('rss',{})
+            feed = None
+            if rss_config.get('enabled'):
+                from .rss import render
+                feed = render(documents,rss_config)
             # Validate the whole batch before replacing any last-known-good files.
+            if feed is not None:
+                atomic_text(root/'feed.xml',feed)
             for doc in documents:
                 atomic_text(posts / (doc['date'] + '.md'), markdown(doc, repository=True))
                 atomic_text(posts / (doc['date'] + '.html'), html(doc, repository=True))
@@ -76,7 +89,8 @@ def export(root):
                 if latest:
                     atomic_text(root / 'index.html', html(latest, root_index=True, repository=True))
                 links = ''.join(f'<li><a href="posts/{day}.html">{day}</a> · <a href="posts/{day}.md">Markdown</a> — review draft</li>' for day in dates)
-                atomic_text(root / 'briefings.html', page('Portland daily archive', '<h1>Portland Daily Brief archive</h1><p>AI-assisted review drafts. Editorial approval is separate. Forecasts and claims are dated snapshots.</p><ul>' + links + '</ul>', '<a href="index.html">Latest brief</a>'))
+                rss_link = '<a href="feed.xml">Subscribe via RSS</a>' if feed is not None else ''
+                atomic_text(root / 'briefings.html', page('Portland daily archive', '<h1>Portland Daily Brief archive</h1><p>AI-assisted review drafts. Editorial approval is separate. Forecasts and claims are dated snapshots.</p><ul>' + links + '</ul>', '<a href="index.html">Latest brief</a>'+rss_link))
                 atomic_text(root / 'briefings.md', '# Portland Daily Brief archive\n\nAI-assisted review drafts; editorial approval pending. Historical forecasts describe the time checked. Corrections and earlier versions remain in Git history.\n\n' + '\n'.join(f'- [{day}](posts/{day}.md) · [HTML](posts/{day}.html)' for day in dates) + '\n')
             return dates
         finally:
@@ -115,7 +129,7 @@ def sync(root, push=False):
         if push and dates:
             # Never stage a whole directory: unrelated untracked private files
             # could have been placed inside posts/ by a manual workflow.
-            files = ARCHIVE_PATHS[1:] + [f'posts/{day}{suffix}' for day in dates for suffix in ['.md', '.html']]
+            files = [p for p in ARCHIVE_PATHS[1:] if (root/p).exists()] + [f'posts/{day}{suffix}' for day in dates for suffix in ['.md', '.html']]
             git(root, 'add', '--', *files)
             if git(root, 'diff', '--cached', '--name-only'):
                 git(root, 'commit', '-m', 'Archive Portland daily brief ' + dates[0])

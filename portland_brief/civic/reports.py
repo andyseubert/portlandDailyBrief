@@ -34,6 +34,8 @@ def generate(store, meeting_id, output, max_words=500):
         raise ValueError('Meeting not found')
     metadata = json.loads(meeting['data'])
     appearances = [dict(r) for r in store.db.execute("SELECT * FROM appearances WHERE meeting_id=? ORDER BY CASE WHEN action_type IN ('adoption','reading') THEN 0 WHEN matter_id IS NULL THEN 2 ELSE 1 END, CAST(agenda_number AS INTEGER)", (meeting_id,))]
+    if metadata.get('source_version'):
+        appearances = [r for r in appearances if json.loads(r['data']).get('source_version') == metadata['source_version']]
     if not appearances and meeting['kind'] != 'executive_session':
         raise ValueError('Only a notice is available; no meeting report can be inferred')
     phases = {}
@@ -107,6 +109,8 @@ def generate(store, meeting_id, output, max_words=500):
         validate_claims(store, claims, bundle)
         issues = [json.loads(r['data'])['validation'] for r in store.db.execute('SELECT data FROM vote_events WHERE meeting_id=? AND review_status=\'hold\'', (meeting_id,))]
         for appearance in appearances:
+            for warning in json.loads(appearance['data']).get('identity_warnings', []):
+                issues.append({'issues': [warning], 'review_status': 'hold'})
             if appearance['matter_id']:
                 for doc in store.db.execute("SELECT data FROM documents WHERE matter_id=?", (appearance['matter_id'],)):
                     warnings = json.loads(doc[0]).get('review_warnings')
@@ -149,7 +153,7 @@ def generate(store, meeting_id, output, max_words=500):
         target.mkdir(parents=True, exist_ok=True)
         (target / 'article.md').write_text(article)
         # HTML is escaped, including all fetched text and URLs.
-        review = '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Private meeting review</title><body><h1>Private meeting review</h1><pre style="white-space:pre-wrap">' + html.escape(article) + '</pre><h2>Evidence and review holds</h2>'
+        review = '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Private meeting review</title><style>body{max-width:900px;margin:auto;padding:22px;font:17px/1.6 system-ui,sans-serif}pre{white-space:pre-wrap;overflow-wrap:anywhere}details{margin:18px 0}a:focus{outline:3px solid #b65a3b}</style><body><h1>Private meeting review</h1><pre style="white-space:pre-wrap">' + html.escape(article) + '</pre><h2>Evidence and review holds</h2>'
         for claim in claims:
             evidence = store.db.execute('SELECT text,locator FROM passages WHERE id=?', (claim['passage_id'],)).fetchone()
             review += '<details><summary>' + html.escape(str(claim['value'])) + '</summary><p>' + html.escape(evidence['locator']) + '</p><pre style="white-space:pre-wrap">' + html.escape(evidence['text']) + '</pre></details>'
@@ -181,6 +185,8 @@ def review(store, report_id, action, actor, note, review_seconds, edits=None):
         version = store.db.execute('SELECT * FROM report_versions WHERE id=?', (newid,)).fetchone()
     if action == 'approve':
         validate_claims(store, claims, bundle)
+        if any(json.loads(r[0]).get('identity_warnings') for r in store.db.execute('SELECT data FROM appearances WHERE meeting_id=?', (report['meeting_id'],))):
+            raise ValueError('Conflicting document identities must be reconciled before approval')
         for url, vid in bundle.items():
             source = store.db.execute('SELECT meaningful_hash FROM source_versions WHERE id=?', (vid,)).fetchone()
             current = store.db.execute('SELECT meaningful_hash FROM source_current WHERE url=?', (url,)).fetchone()

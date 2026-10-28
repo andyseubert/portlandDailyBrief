@@ -2,7 +2,9 @@
 
 An independently written Python application for Portland and Multnomah County written news. [Read the daily brief archive](briefings.md). The reference repository remains in Git history because Andy requested a fork; no Tucson implementation, prompts, branding, articles or assets are used by the Portland application.
 
-Returning to the project? Read [the session handoff](docs/handoff.md) and [AGENTS.md](AGENTS.md) for current state, unresolved issues and restart commands. The handoff was checked October 20, 2026; older dated coverage figures are historical snapshots.
+Returning to the project? Read [the session handoff](docs/handoff.md) and [AGENTS.md](AGENTS.md) for current state, unresolved issues and restart commands. Updated October 28, 2026; older dated coverage figures are historical snapshots.
+
+[Subscribe to the daily RSS feed](https://raw.githubusercontent.com/andyseubert/portlandDailyBrief/main/feed.xml). [Permanent Council & Local Government Watch](docs/government-watch.md) now collects agendas and documented actions into a private reading/review queue and prioritizes government news in future daily editions. It continues after elections. [Personal email setup and identity/domain concepts](docs/distribution.md) are documented; real email delivery remains disabled pending the recipient and authenticated sender.
 
 ## Current operation
 

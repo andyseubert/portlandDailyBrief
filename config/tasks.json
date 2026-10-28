@@ -35,6 +35,26 @@
           "subdivision"
         ],
         "notes": "Prioritize supported Portland and Multnomah County development, zoning, land-use changes and public participation deadlines. Relevance, freshness, evidence validation, source balance and story maximum still apply; never infer approval, construction or opening."
+      },
+      {
+        "id": "local_government",
+        "weight": 7,
+        "terms": [
+          "city council",
+          "councilor",
+          "councilors",
+          "city hall",
+          "mayor",
+          "city auditor",
+          "county chair",
+          "county commissioners",
+          "county board",
+          "city budget",
+          "county budget",
+          "ballot measure",
+          "ranked-choice voting"
+        ],
+        "notes": "Permanent Portland and Multnomah County government coverage, before and after elections. Eligibility and evidence checks still apply; attribute campaign claims and distinguish preliminary results from certification."
       }
     ]
   },
@@ -61,7 +81,11 @@
     "model": null,
     "max_pages_per_scan": 4,
     "coverage_priority": "city_and_county_development_and_zoning",
-    "notice_collection": {"max_pages": 4, "max_notices": 100, "attachments": true},
+    "notice_collection": {
+      "max_pages": 4,
+      "max_notices": 100,
+      "attachments": true
+    },
     "research_focused_projects": true,
     "draft_review_policy": "automatic_source_checked",
     "development_focus": {
@@ -89,5 +113,34 @@
     "draft_sharing_authorized": "Andy Seubert, 2026-10-10",
     "editorial_approval_required_for_meeting_reports": true,
     "development_drafts": "automatic source checks; disclose uncertainty; no human approval implied"
+  },
+  "government_watch": {
+    "enabled": true,
+    "collection_minutes": 60,
+    "lookback_days": 14,
+    "lookahead_days": 7,
+    "max_agendas": 12,
+    "max_documents": 24,
+    "publication_policy": "notice_metadata_and_editor_approved_meeting_claims_only",
+    "notes": "Permanent council and local-government news coverage. Never turn this off after an election. Candidate monitoring is an additional dated source; reports retain editorial approval.",
+    "election": {
+      "url": "https://www.portland.gov/auditor/elections/2026-november-ballot",
+      "election_day": "2026-11-03",
+      "monitor_through": "2026-11-30"
+    },
+    "max_attachments": 6
+  },
+  "rss": {
+    "enabled": true,
+    "feed_url": "https://raw.githubusercontent.com/andyseubert/portlandDailyBrief/main/feed.xml",
+    "archive_url": "https://github.com/andyseubert/portlandDailyBrief/blob/main/",
+    "channel_url": "https://github.com/andyseubert/portlandDailyBrief",
+    "maximum_editions": 30
+  },
+  "email_delivery": {
+    "enabled": false,
+    "check_minutes": 5,
+    "local_config": "data/email-delivery.json",
+    "notes": "Personal daily delivery authorized October 28. Enable only after recipient and authenticated sender are configured locally; no mailing list or public newsletter."
   }
 }

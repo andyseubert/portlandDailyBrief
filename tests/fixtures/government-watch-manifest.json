@@ -1,0 +1,26 @@
+{
+  "portland-council-2026-10-28.html": {
+    "url": "https://www.portland.gov/council/agenda/2026/10/28",
+    "retrieved_at": "2026-10-28T18:54:20.806890+00:00",
+    "sha256": "404b8bf2b5b0ead1f6b0aeaf9e478f21149fbba59b91a982cffe9c6f5621123c",
+    "purpose": "Official acceptance fixture for permanent council/election coverage; source bytes, not an editorial approval."
+  },
+  "portland-committee-whole-2026-10-29.html": {
+    "url": "https://www.portland.gov/council/agenda/committee-whole/2026/10/29",
+    "retrieved_at": "2026-10-28T18:54:20.367923+00:00",
+    "sha256": "8335e52f6f4f762ede9009d6159476ef98e06a81b6dbd0d5a7e3979d4a48ef23",
+    "purpose": "Official acceptance fixture for permanent council/election coverage; source bytes, not an editorial approval."
+  },
+  "portland-ballot-2026.html": {
+    "url": "https://www.portland.gov/auditor/elections/2026-november-ballot",
+    "retrieved_at": "2026-10-28T18:54:36.473151+00:00",
+    "sha256": "08dcb1c96c82c0681324b79355afe12b3d4ef39d1a1485085f0033cf24250ab8",
+    "purpose": "Official acceptance fixture for permanent council/election coverage; source bytes, not an editorial approval."
+  },
+  "portland-council-rules-2026-372.html": {
+    "url": "https://www.portland.gov/council/documents/ordinance/council-rules-ordinance-2026",
+    "retrieved_at": "2026-10-28T18:54:30.702110+00:00",
+    "sha256": "b09970ba4acac388c8e328e13873dac50d8a5132748d7ff0c512c0c3967af6f1",
+    "purpose": "Official acceptance fixture for permanent council/election coverage; source bytes, not an editorial approval."
+  }
+}

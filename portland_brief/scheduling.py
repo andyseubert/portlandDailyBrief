@@ -44,6 +44,10 @@ def definitions(root):
     }
     if config.get('repository_archive', {}).get('enabled'):
         jobs['archive-sync'] = ('archive', [python, '-m', 'portland_brief.repository_archive', '--root', str(root), '--push'], 300)
+    if config.get('government_watch', {}).get('enabled'):
+        jobs['council-watch'] = ('government_watch', [python, '-m', 'portland_brief.civic.cli', '--root', str(root), 'council-watch'], config['government_watch'].get('collection_minutes',60)*60)
+    if config.get('email_delivery',{}).get('enabled'):
+        jobs['email-delivery'] = ('delivery',[python,'-m','portland_brief.delivery','--root',str(root),'--send','--scheduled'],config['email_delivery'].get('check_minutes',5)*60)
     return config, jobs
 
 

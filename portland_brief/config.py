@@ -21,6 +21,7 @@ def load_config(root: Path):
         settings['story_limit'] = min(settings['story_limit'], daily['story_maximum'])
         settings['late_arrival_lookback_hours'] = daily['late_arrival_lookback_hours']
         settings['scheduling'] = bool(tasks.get('schedule', {}).get('enabled'))
+        settings['government_watch'] = tasks.get('government_watch', {})
         priorities = daily.get('editorial_priorities', [])
         for priority in priorities:
             if (not isinstance(priority.get('id'), str) or

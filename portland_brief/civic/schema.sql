@@ -52,3 +52,6 @@ CREATE TABLE IF NOT EXISTS development_report_versions(id TEXT PRIMARY KEY, repo
 CREATE TABLE IF NOT EXISTS development_review_audit(id INTEGER PRIMARY KEY, report_id TEXT NOT NULL, version_id TEXT NOT NULL, action TEXT NOT NULL, actor TEXT NOT NULL, at TEXT NOT NULL, review_seconds REAL NOT NULL, note TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS development_relationships(id TEXT PRIMARY KEY, record_id TEXT NOT NULL REFERENCES development_records(id), related_identifier TEXT NOT NULL, kind TEXT NOT NULL, passage_id TEXT NOT NULL REFERENCES passages(id), data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS development_evidence(id TEXT PRIMARY KEY, record_id TEXT NOT NULL REFERENCES development_records(id), source_url TEXT NOT NULL, source_version TEXT NOT NULL REFERENCES source_versions(id), passage_id TEXT NOT NULL REFERENCES passages(id), kind TEXT NOT NULL, data TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS government_watch_runs(id TEXT PRIMARY KEY, checked_at TEXT NOT NULL, data TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS meeting_watch_entries(id TEXT PRIMARY KEY REFERENCES meetings(id), checked_at TEXT NOT NULL, source_version TEXT NOT NULL REFERENCES source_versions(id), data TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS election_watch_versions(id TEXT PRIMARY KEY REFERENCES source_versions(id), checked_at TEXT NOT NULL, data TEXT NOT NULL);

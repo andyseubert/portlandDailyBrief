@@ -1,0 +1,20 @@
+# Council & Local Government Watch
+
+This coverage is permanent. Elections add candidate/news attention; they do not turn council, committee or local-government coverage off afterward. The current candidate source is the [City's November 2026 ballot page](https://www.portland.gov/auditor/elections/2026-november-ballot). It contains 33 council candidates and one auditor candidate. Candidate monitoring currently ends November 30; the government job has no election expiration.
+
+The existing Mac scheduler now runs `portland-civic council-watch` hourly. No additional OS service, cloud runner or paid provider was installed. It refreshes the official committee roster, follows explicit dated links from the council and five current committee indexes, and revisits retained agendas for late-posted dispositions. It uses a fourteen-day lookback and seven-day lookahead, bounded at twelve agenda pages, twenty-four linked documents and six attachments per run. Deferred work rotates based on prior checks so one repeatedly checked page cannot starve the remainder.
+
+```sh
+.venv/bin/portland-civic council-watch --refresh
+.venv/bin/python -m unittest discover -s tests -q
+```
+
+Read `output/council-watch/index.html` directly in a browser. Each session has agenda items, exact recorded stages/dispositions, linked documents and separate proposed amendment/exhibit attachments. Agenda previews, recorded-action drafts and follow-up drafts link to their readable evidence pages. Missing outcomes remain pending; elapsed time never supplies a decision. Older removed agenda items remain stored but do not enter the current report's claims.
+
+`output/council-watch/news.html` lists recent local-government/election headlines from enabled feeds, including stories outside the daily selection. It displays publication times, inclusion status and last successful feed checks. It does not copy full publisher articles or imply independent verification. Disabled sources and outside-scope stories are filtered. Full-name matches use observed officeholders and a fresh official candidate list; similarly worded stories about different named candidates stay separate.
+
+The daily brief gives validated local-government stories priority and a permanent dedicated section before other local news. Existing relevance, publication windows, source balancing, evidence checks and text-model limits still apply. Official meeting notice dates/links can appear as clearly labeled metadata. Unreviewed agenda/outcome narratives do not enter the daily archive or RSS. Approved structured meeting claims require a real report-audit approval for the matching version; holds, edits, material invalidation and forged approvals are rejected. Private meetings retain their existing approve/edit/hold/correct commands; no approval is manufactured by collection.
+
+The October 28 live acceptance sample fetched ten agenda pages covering thirteen sessions from six official body indexes. This includes the [October 28–29 council agenda](https://www.portland.gov/council/agenda/2026/10/28) and [October 29 committee agenda](https://www.portland.gov/council/agenda/committee-whole/2026/10/29). Those retrieved records still lacked session outcomes; earlier records provided documented dispositions for draft action reports. The reused Committee Chair updates URL remains an explicit identity hold. Its appearance/evidence is retained without attaching it to a guessed matter; approval remains blocked until reconciliation.
+
+This is not comprehensive historical council coverage, calendar/agenda deduplication, county outcome ingestion, recording review or automated election-results reporting. Current `processed` meetings mean agenda extraction, not reviewed journalism. Attachment extraction is a separate budget and never establishes interpretation. `documents_deferred`/`attachments_deferred` mean not checked in that particular run; `attachments_without_complete_text` tracks a different remaining gap. The existing local runner still requires the Mac/user session/network to be available.

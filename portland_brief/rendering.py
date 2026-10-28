@@ -7,7 +7,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 
-CSS = """body{margin:0;background:#f5f3ee;color:#172b30;font:18px/1.65 system-ui,sans-serif}main{max-width:780px;margin:auto;padding:36px 22px 70px}a{color:#07566a;text-underline-offset:3px}a:focus{outline:3px solid #db830c}h1{font-size:2.2rem;line-height:1.15}h2{font-size:1.35rem;line-height:1.3}.notice{background:#fff0c9;border-left:4px solid #b76b00;padding:14px 18px}article{padding:20px 0;border-bottom:1px solid #c9cfcc}.meta{font-size:.88rem;color:#44585c}li{margin-bottom:9px}footer{margin-top:32px}nav{display:flex;gap:20px;flex-wrap:wrap}table{border-collapse:collapse;width:100%}td,th{padding:10px;border-bottom:1px solid #ccc;text-align:left}details{margin:16px 0}pre{white-space:pre-wrap} @media(max-width:500px){body{font-size:17px}h1{font-size:1.85rem}}"""
+CSS = """body{margin:0;background:#f5f3ee;color:#172b30;font:18px/1.65 system-ui,sans-serif}main{max-width:780px;margin:auto;padding:36px 22px 70px;overflow-wrap:anywhere}a{color:#07566a;text-underline-offset:3px}a:focus{outline:3px solid #db830c}h1{font-size:2.2rem;line-height:1.15}h2{font-size:1.35rem;line-height:1.3}.notice{background:#fff0c9;border-left:4px solid #b76b00;padding:14px 18px}article{padding:20px 0;border-bottom:1px solid #c9cfcc}.meta{font-size:.88rem;color:#44585c}li{margin-bottom:9px}footer{margin-top:32px}nav{display:flex;gap:20px;flex-wrap:wrap}table{border-collapse:collapse;width:100%}td,th{padding:10px;border-bottom:1px solid #ccc;text-align:left}details{margin:16px 0}pre{white-space:pre-wrap} @media(max-width:500px){body{font-size:17px}h1{font-size:1.85rem}}"""
 
 
 def local_time(value, tz):
@@ -41,6 +41,28 @@ def markdown_text(text):
     return result
 
 
+def government_lines(doc):
+    watch = doc.get('government_watch')
+    if not watch:
+        return []
+    esc = markdown_text
+    lines = ['## Council & Local Government Watch', '', 'Ongoing council and local-government coverage, including after elections.', '']
+    for gap in watch.get('gaps',[]):
+        lines += ['- '+esc(gap)]
+    if watch.get('notices'):
+        lines += ['', '### Upcoming official meeting notices', '']
+        for n in watch['notices']:
+            lines += [f"- [{esc(n['title'])}]({n['source_url']}) — {esc(local_time(n['starts_at'],doc['timezone']))}."]
+        lines += ['', 'Dates and agenda links are official notice metadata. Agenda previews and outcome reports retain editorial review.', '']
+    for r in watch.get('reports',[]):
+        lines += ['### Editor-reviewed meeting '+esc(r['phase']), '']
+        for claim in r['claims']:
+            lines += [esc(str(claim['value'])), '', f"[Official evidence]({claim['source_url']})", '']
+    if not any('local_government' in s.get('flags',[]) for s in doc['stories']):
+        lines += ['No new validated local-government news summaries were produced for this edition; this does not establish that no government activity occurred.', '']
+    return lines
+
+
 def markdown(doc, repository=False):
     esc = markdown_text
     lines = [f"# {esc(doc['title'])} — {doc['date']}", "", "**LOCAL DRAFT — NOT PUBLISHED. Editorial review required.**", "", f"Generated {local_time(doc['generated_at'], doc['timezone'])}.", f"Coverage: Portland and directly relevant Multnomah County developments; rolling {doc['window_hours']}-hour window.", "", "AI-assisted summaries from fetched evidence. These are attributed summaries, not independent reporting.", ""]
@@ -52,8 +74,15 @@ def markdown(doc, repository=False):
         lines.append(f"- [NWS point forecast]({w['forecast_url']})")
     if w.get("alert_url"):
         lines.append(f"- [NWS point alerts]({w['alert_url']})")
+    if doc.get('government_watch'):
+        lines += ['', *government_lines(doc)]
+    other_started = False
     for story in doc["stories"]:
-        lines += ["", "## " + esc(story["headline"]), "", esc(" ".join(story["sentences"])), ""]
+        government = bool(doc.get('government_watch')) and 'local_government' in story.get('flags',[])
+        if doc.get('government_watch') and not government and not other_started:
+            lines += ['', '## Other local news', '']
+            other_started = True
+        lines += ["", ("### " if government else "## ") + esc(story["headline"]), "", esc(" ".join(story["sentences"])), ""]
         for eid in story["citation_ids"]:
             e = doc["evidence"][eid]
             timestamp = local_time(e["published_at"], doc["timezone"]) if e.get("published_at") else "Publication time unavailable"
@@ -91,8 +120,30 @@ def html(doc, root_index=False, repository=False):
         if doc["weather"].get(key):
             content.append(f'<p><a href="{e(doc["weather"][key], quote=True)}" rel="noopener noreferrer">{name}</a></p>')
     content.append("</section>")
+    if doc.get('government_watch'):
+        content += ['<section aria-labelledby="government-watch"><h2 id="government-watch">Council &amp; Local Government Watch</h2><p>Ongoing council and local-government coverage, including after elections.</p>']
+        for gap in doc['government_watch'].get('gaps',[]):
+            content.append('<p class="notice">'+e(gap)+'</p>')
+        if doc['government_watch'].get('notices'):
+            content.append('<h3>Upcoming official meeting notices</h3><ul>')
+            for n in doc['government_watch']['notices']:
+                content.append('<li><a href="'+e(n['source_url'],quote=True)+'">'+e(n['title'])+'</a> — '+e(local_time(n['starts_at'],doc['timezone']))+'</li>')
+            content.append('</ul><p>Dates and agenda links are official notice metadata. Agenda previews and outcome reports retain editorial review.</p>')
+        for r in doc['government_watch'].get('reports',[]):
+            content.append('<h3>Editor-reviewed meeting '+e(r['phase'])+'</h3>')
+            for claim in r['claims']:
+                content.append('<p>'+e(str(claim['value']))+' <a href="'+e(claim['source_url'],quote=True)+'">Official evidence</a></p>')
+        if not any('local_government' in s.get('flags',[]) for s in doc['stories']):
+            content.append('<p>No new validated local-government news summaries were produced for this edition; this does not establish that no government activity occurred.</p>')
+        content.append('</section>')
+    other_started = False
     for i, story in enumerate(doc["stories"]):
-        content += [f'<article aria-labelledby="story-{i}"><h2 id="story-{i}">{e(story["headline"])}</h2>', "<p>" + e(" ".join(story["sentences"])) + "</p>"]
+        government = bool(doc.get('government_watch')) and 'local_government' in story.get('flags',[])
+        if doc.get('government_watch') and not government and not other_started:
+            content.append('<h2>Other local news</h2>')
+            other_started = True
+        level = 'h3' if government else 'h2'
+        content += [f'<article aria-labelledby="story-{i}"><{level} id="story-{i}">{e(story["headline"])}</{level}>', "<p>" + e(" ".join(story["sentences"])) + "</p>"]
         for eid in story["citation_ids"]:
             record = doc["evidence"][eid]
             timestamp = local_time(record["published_at"], doc["timezone"]) if record.get("published_at") else "Publication time unavailable"

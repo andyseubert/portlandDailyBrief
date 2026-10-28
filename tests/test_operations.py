@@ -48,7 +48,7 @@ class OperationTests(unittest.TestCase):
             calls.append(command)
             return subprocess.CompletedProcess(command, 1 if 'collect-news' in command else 0)
         result = tick(self.root, True, datetime(2026,10,9,21,tzinfo=timezone.utc), runner)
-        self.assertEqual(len(calls), 4)
+        self.assertEqual(len(calls), 5)
         states = {j['job']: j['state'] for j in result['results']}
         self.assertEqual(states['news-collect'], 'retry')
         self.assertEqual(states['meetings-discovery'], 'pending')

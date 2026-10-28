@@ -54,6 +54,11 @@ def run(root, settings, registry, force=False, now=None, summarizer=summarize):
                 policy=json.loads(tasks_path.read_text()).get('filings',{}).get('draft_review_policy','approved_only') if tasks_path.exists() else 'approved_only'
                 watch=source_checked_watch if policy=='automatic_source_checked' else approved_watch
                 doc['development_watch'] = watch(civic, now, settings['window_hours'], min(3, settings['story_limit']))
+                if settings.get('government_watch', {}).get('enabled'):
+                    from .civic.government_watch import snapshot, names
+                    doc['government_watch'] = snapshot(civic,now,settings['government_watch'])
+                    settings = {**settings, 'government_names':names(civic,now)}
+                    doc['gaps'] += doc['government_watch']['gaps']
             finally:
                 civic.close()
             items, health = collect(fetcher, registry, settings)
@@ -102,6 +107,9 @@ def run(root, settings, registry, force=False, now=None, summarizer=summarize):
                 if not stories:
                     raise RuntimeError("No model summaries passed evidence validation; previous draft preserved")
                 by_id = {i.id: i for i in items}
+                if settings.get('government_watch', {}).get('enabled'):
+                    from .government import order_stories
+                    stories = order_stories(stories,by_id,settings)
                 for story in stories:
                     eid = story.citation_ids[0]
                     related = selection["overlapping_evidence_ids"].get(eid, [])

@@ -9,6 +9,7 @@ from ..records import safe_url
 from .procedures import POSITION_MAP, action_type
 
 PARSER_VERSION = "official-html-v1"
+DOCUMENT_PARSER_VERSION = "official-document-v2"
 
 
 def text(node):
@@ -218,11 +219,12 @@ def document_detail(data, url):
     names = {'purpose': 'field-purpose-and-background', 'stated_costs': 'field-financial-impacts', 'community_impacts': 'field-community-impacts', 'economic_impacts': 'field-economic-impacts', 'introduced_by': 'field-introduced-by', 'responsible_department': 'field-bureau', 'requested_meeting_date': 'field-requested-council-date', 'requested_start_time': 'field-requested-start-time'}
     facts = {key: field(main, name=name) for key, name in names.items()}
     attachments = []
-    node = main.select_one('.field--name-field-documents-and-exhibits')
-    for link in node.select('a[href]') if node else []:
-        target = urljoin(url, link['href'])
-        if '/documents/' in target or '/sites/' in target:
-            attachments.append({'url': safe_url(target, ['www.portland.gov']), 'label': text(link)})
+    for selector, role in [('.field--name-field-documents-and-exhibits','exhibit'),('.field--name-field-amendments','amendment')]:
+        node = main.select_one(selector)
+        for link in node.select('a[href]') if node else []:
+            target = urljoin(url, link['href'])
+            if '/documents/' in target or '/sites/' in target:
+                attachments.append({'url': safe_url(target, ['www.portland.gov']), 'label': text(link), 'role':role})
     return {'document_number': number, 'title': text(main.select_one('h1')), 'facts': facts, 'attachments': attachments}
 
 
