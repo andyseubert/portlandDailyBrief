@@ -55,3 +55,5 @@ CREATE TABLE IF NOT EXISTS development_evidence(id TEXT PRIMARY KEY, record_id T
 CREATE TABLE IF NOT EXISTS government_watch_runs(id TEXT PRIMARY KEY, checked_at TEXT NOT NULL, data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS meeting_watch_entries(id TEXT PRIMARY KEY REFERENCES meetings(id), checked_at TEXT NOT NULL, source_version TEXT NOT NULL REFERENCES source_versions(id), data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS election_watch_versions(id TEXT PRIMARY KEY REFERENCES source_versions(id), checked_at TEXT NOT NULL, data TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS ai_review_chunks(id TEXT PRIMARY KEY, report_id TEXT NOT NULL REFERENCES meeting_reports(id), report_version TEXT NOT NULL REFERENCES report_versions(id), fingerprint TEXT NOT NULL, checked_at TEXT NOT NULL, status TEXT NOT NULL, data TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS ai_review_runs(id TEXT PRIMARY KEY, started_at TEXT NOT NULL, status TEXT NOT NULL, data TEXT NOT NULL);

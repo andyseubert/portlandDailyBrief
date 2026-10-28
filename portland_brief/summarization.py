@@ -40,7 +40,9 @@ def summarize(items, settings, root: Path, run_dir: Path):
     permitted = {"PATH", "HOME", "LANG", "LC_ALL", "TMPDIR", "SYSTEMROOT"}
     env = {k: v for k, v in os.environ.items() if k in permitted}
     env.update(HF_HOME=os.environ.get("HF_HOME", str(root / ".models")), HF_HUB_DISABLE_TELEMETRY="1", TOKENIZERS_PARALLELISM="false")
-    process = subprocess.run([sys.executable, "-m", "portland_brief.model_worker", str(request_path), str(response_path)], cwd=root, env=env, capture_output=True, text=True, timeout=settings["generation_timeout_seconds"])
+    from .pipeline import run_lock
+    with run_lock(root / settings['data_path'] / 'model.lock'):
+        process = subprocess.run([sys.executable, "-m", "portland_brief.model_worker", str(request_path), str(response_path)], cwd=root, env=env, capture_output=True, text=True, timeout=settings["generation_timeout_seconds"])
     if process.returncode != 0 or not response_path.exists():
         raise RuntimeError("Local model failed. Check installation, free RAM and model cache; previous output preserved.")
     result = json.loads(response_path.read_text())

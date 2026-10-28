@@ -142,5 +142,19 @@
     "check_minutes": 5,
     "local_config": "data/email-delivery.json",
     "notes": "Personal daily delivery authorized October 28. Enable only after recipient and authenticated sender are configured locally; no mailing list or public newsletter."
+  },
+  "ai_review": {
+    "enabled": true,
+    "provider": "mlx",
+    "collection_minutes": 60,
+    "max_reports": 4,
+    "max_chunks": 8,
+    "max_chunk_chars": 12000,
+    "max_input_tokens": 6500,
+    "max_output_tokens": 700,
+    "max_tokens_per_run": 26000,
+    "timeout_seconds": 600,
+    "private_only": true,
+    "notes": "Separate automatic claim/source review using the existing pinned local model. AI checks never change human editorial state or public export permissions. Reserve 06:45\u201307:15 LA for news synthesis."
   }
 }

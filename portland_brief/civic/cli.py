@@ -53,6 +53,10 @@ def main(argv=None):
     sub.add_parser('status')
     council = sub.add_parser('council-watch', help='Refresh permanent council agenda/outcome coverage and the private review page')
     council.add_argument('--refresh', action='store_true')
+    sub.add_parser('ai-review', help='Run separate automatic private AI claim checks; never record human approval')
+    sub.add_parser('reader', help='Build the private brief, report and decision-history reading hub')
+    server = sub.add_parser('reader-server', help='Serve the private reading hub on localhost with a human review action')
+    server.add_argument('--port', type=int, default=8765)
     sub.add_parser('vocabulary')
     sub.add_parser('reconcile-votes')
     filing = sub.add_parser('import-filing')
@@ -110,6 +114,10 @@ def main(argv=None):
     settings, _ = load_config(root)
     registry = json.loads((root / 'config/civic-sources.json').read_text())
     fetcher = Fetcher(root, {**settings, 'response_byte_limit': 16_000_000}, getattr(args, 'refresh', False))
+    if args.command == 'reader-server':
+        from .reader_server import serve
+        serve(root, settings, args.port)
+        return 0
     database = root / settings['data_path'] / 'civic.sqlite3'
     store = CivicStore(database)
     try:
@@ -119,7 +127,8 @@ def main(argv=None):
             jid = create_job(store, args.meeting_id, args.url, args.mode)
             result = {'job_id': jid, **run_capture(store, jid, args.max_seconds)}
         else:
-            with run_lock(database.parent / ('filings.lock' if args.command in {'filings', 'import-filing', 'lookup-project', 'developments', 'notices', 'development-reports', 'development-evidence', 'review-development'} else 'meetings.lock')):
+            lock_name = 'ai-review.lock' if args.command == 'ai-review' else 'reader.lock' if args.command == 'reader' else 'filings.lock' if args.command in {'filings', 'import-filing', 'lookup-project', 'developments', 'notices', 'development-reports', 'development-evidence', 'review-development'} else 'meetings.lock'
+            with run_lock(database.parent / lock_name):
                 if args.command == 'lookup-project':
                     result = lookup_project(store, fetcher, args.address, args.limit)
                 elif args.command == 'developments':
@@ -140,6 +149,20 @@ def main(argv=None):
                     cfg = json.loads((root / 'config/tasks.json').read_text()).get('government_watch', {})
                     result = collect(store,fetcher,cfg,root / settings['output_path'] / 'council-watch')
                     result['news_candidates'] = write_news_queue(store,root,settings)
+                    from .reader import build
+                    result['reader'] = build(store,root,settings)
+                elif args.command == 'reader':
+                    from .reader import build
+                    result = build(store,root,settings)
+                elif args.command == 'ai-review':
+                    from .ai_review import run
+                    from .reader import build
+                    clock = datetime.now(ZoneInfo('America/Los_Angeles'))
+                    if clock.hour == 6 and clock.minute >= 45 or clock.hour == 7 and clock.minute < 15:
+                        result = {'deferred':True,'reason':'Reserve local model capacity for the daily brief','errors':[]}
+                    else:
+                        result = run(store,root,settings['ai_review'])
+                    result['reader'] = build(store,root,settings)
                 elif args.command == 'review-development':
                     from .development_reports import review
                     result = review(store, args.report_id, args.action, args.editor, args.note, args.review_seconds, json.loads(args.file.read_text()) if args.file else None)
@@ -246,6 +269,8 @@ def main(argv=None):
                     result = {'backup': str(args.out), 'source_artifacts': str(database.parent / 'source-versions'), 'note': 'Back up source-versions and capture directories with the database.'}
         print(json.dumps(result, indent=2, ensure_ascii=False))
         if args.command == 'council-watch' and result['errors']:
+            return 1
+        if args.command == 'ai-review' and result['errors']:
             return 1
         if args.command == 'discover' and any(r.get('error') or r.get('errors') for r in result):
             # A deliberate page budget is partial coverage, not an outage.

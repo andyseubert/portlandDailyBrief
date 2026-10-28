@@ -48,6 +48,8 @@ def definitions(root):
         jobs['council-watch'] = ('government_watch', [python, '-m', 'portland_brief.civic.cli', '--root', str(root), 'council-watch'], config['government_watch'].get('collection_minutes',60)*60)
     if config.get('email_delivery',{}).get('enabled'):
         jobs['email-delivery'] = ('delivery',[python,'-m','portland_brief.delivery','--root',str(root),'--send','--scheduled'],config['email_delivery'].get('check_minutes',5)*60)
+    if config.get('ai_review',{}).get('enabled'):
+        jobs['ai-review'] = ('ai_review',[python,'-m','portland_brief.civic.cli','--root',str(root),'ai-review'],config['ai_review'].get('collection_minutes',60)*60)
     return config, jobs
 
 
