@@ -1,4 +1,53 @@
-# Session handoff — October 20, 2026
+# Session handoff — October 28, 2026
+
+## Current resume point
+
+Andy resumed on October 28 with “pick up where we left off.” Read this section and `AGENTS.md` before the historical October 20 handoff below. The completed increment fixes shared-cache races and meeting failure reporting; development histories, scanned attachment interpretation and county ingestion remain later gates. No daily edition was regenerated, model invoked, human approval recorded, publication permission changed or website deployed.
+
+At inspection, `main` was clean and matched `origin/main`; daily archive commit `2b13b47` contains October 28. Twenty dated editions exist, October 9–28 inclusive. The LaunchAgent remains loaded at 60-second intervals, and persisted daily synthesis next targets October 29 at 7 a.m. LA. No scheduler settings were changed.
+
+### Completed reliability work and validation
+
+- HTTP fetching serializes each URL across processes, uses unique sibling temporary files and verifies the cached body's hash against metadata before reuse. A mismatched pair is fetched unconditionally; a failed write or outage preserves the prior verified fallback's metadata/freshness. A 304 retains original source bytes/fetch time. New fetch diagnostics include the underlying error rather than only “request or parse failed.” The historical October 20 shared temporary path is a real race hazard, but its specific failure cause and the old generic fetch failures cannot be proven retroactively.
+- Meeting `discover` returns nonzero for actual fetch/parse/identity errors or a terminal inventory count mismatch. Intentional page budgets retain explicit continuation/partial coverage and exit zero when otherwise healthy. Roster failures propagate too. Scheduler retries now receive these failure codes; an executing scheduler tick also exits nonzero when a child fails, without cancelling independent jobs.
+- Identifier checks run before matter writes. A conflicted document row is held with exact document number, URL, source version and passage while other rows/pages continue. Index-row counts and normalized/held counts are separate. Inventory traversal may reconcile while normalization remains partial and the command exits nonzero. No conflicting identities were merged or guessed.
+- Full validation: `.venv/bin/python -m unittest discover -s tests -q` passed **139 tests**. Sixteen added cases cover four simultaneous cache-writer processes, interrupted body/metadata replacements, stale/304 behavior and unchanged freshness, actual meeting CLI-to-scheduler retry propagation, roster/parse/count errors, deliberate page limits and held identities without writes. No UI changes or new browser checks; the October 10 browser validation remains historical.
+
+### Latest live verification
+
+Private structured result: `output/meeting-health-2026-10-28-live.json`. The initial sandboxed attempt failed DNS resolution for official hosts and remains honestly recorded in civic retrievals; the approved outside-sandbox rerun fetched all configured sources. Do not mistake that test-environment DNS failure for a continuing LaunchAgent outage.
+
+| Source | Live returned scope | Remaining limit |
+| --- | --- | --- |
+| Clerk calendar | 36/36 listed events, two pages | Discovery, not processed meetings |
+| Current institutions | Five; source unchanged | Current observed membership, not historical terms |
+| Active documents | 42/42 index rows, two pages; 41 normalized, one held | Identity reconciliation below; no claim all detailed documents processed |
+| Completed documents | 100/4,136, four pages | Continuation starts at `?page=4` |
+| Voting register | 96/16,074, four pages | Continuation starts at `?page=4` |
+| County archive | 1,551 entries, listing reached end | No independent expected total or reviewed outcomes |
+
+The all-source command correctly exits **1** because of the held identity, even though all HTTP requests succeeded. [The current City listing](https://www.portland.gov/council/documents) and [Committee Chair updates detail](https://www.portland.gov/council/documents/presentation/committee-chair-updates) identify that URL as **2026-388**. Stored prior official evidence links the same URL to **2026-373**, whose placed-file URL is also retained. Distinct matter IDs are `matter:4e7568bbc8091037d0844674` and `matter:1da26ed23148d8c3206b67d7`. The live held passage is `passage:03959fe4fb1630e4b57974cb`, source version `source:c73b19202e882d6dd96bcd7a`. Reconcile URL identity/version history from explicit official evidence; do not treat a recurring presentation title as one continuing legislative matter.
+
+Current civic storage: 1,615 meeting identities (1,613 discovered, one partial, one processed); no capture jobs, transcript segments or human approval audits. Latest existing filings run is October 27: commercial layer 143/143 over two pages within the creation-date window starting October 27, 2025; 149 retained identities across runs. Current notices reconciled 43/43 over three pages (37 case notices, six information documents), 38 PDF attachments, 477 pages, 16 pages without text. Attachment processing remains incomplete. Three development reports remain on the map. These figures were inspected from scheduled records, not a new filings refresh in this session.
+
+### Next work and exact commands
+
+1. Reconcile the reused meeting URL from explicit official document histories while preserving both matter identities. The scanner now continues valid rows but keeps the conflict visible and retryable.
+2. Audit aggregate filings exit status: its prior scheduler success code can coexist with incomplete notice attachment processing. This increment fixes meeting/scheduler propagation, not every civic subcommand.
+3. Investigate the October 20 apparently overlapping news items from retained evidence before changing selection or a dated archive. No retrospective correction was made here.
+4. Resume scanned-page interpretation and durable development histories, then address watchlists and the separate county adapter as in `AGENTS.md`.
+
+```sh
+git status --short --branch
+git log -5 --oneline
+.venv/bin/python -m unittest discover -s tests -q
+.venv/bin/python -m portland_brief.launch_agent status
+.venv/bin/portland-civic discover --source portland-documents-active --max-pages 4 --refresh
+```
+
+The active-document command can legitimately return 1 while the held conflict remains. Inspect its per-source `errors`, `normalized_records` and `held_records`, not just the exit code. Keep private databases, cache, source bytes and the live-check JSON ignored. Commit/push tested implementation/docs normally; no force pushes. Existing map, development drafts, source permissions and editorial/publication boundaries remain in force.
+
+## Historical October 20 handoff
 
 Checked around 9:23 a.m. America/Los_Angeles. This is a dated snapshot; inspect current records when returning. The session ended after Andy asked us to document continuity. This handoff changes documentation only; it does not start a new implementation stage, publish a website or change scheduling.
 

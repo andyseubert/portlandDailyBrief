@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 from . import parsers
 from .procedures import validate_vote
-from .store import stable_id, stamp
+from .store import IdentifierConflict, stable_id, stamp
 
 
 def bootstrap(store, root):
@@ -143,7 +143,7 @@ def ingest_agenda(store, data, url, body='portland:council'):
 PARSERS = {'calendar': parsers.calendar, 'document_index': parsers.document_index, 'vote_register': parsers.vote_register, 'granicus': parsers.county_archive}
 
 
-def ingest_index_page(store, data, url, kind):
+def ingest_index_page(store, data, url, kind, row_errors=None):
     rows = PARSERS[kind](data, url)
     page = parsers.page_info(data, url)
     version, changed = store.source_version(url, data, parsers.PARSER_VERSION, {'rows': [{k: v for k, v in r.items() if k != 'passage'} for r in rows], 'pagination': page})
@@ -160,7 +160,13 @@ def ingest_index_page(store, data, url, kind):
             if row['starts_at']:
                 store.fact('meeting', mid, 'starts_at', row['starts_at'], pid)
         elif kind == 'document_index':
-            mid = store.matter('portland', row['document_number'], row['url'], row['title'], {'index_disposition': row['official_disposition'], 'index_final_disposition_date': row['final_disposition_date'], 'index_version': version, 'introduced_by': row['introduced_by']})
+            try:
+                mid = store.matter('portland', row['document_number'], row['url'], row['title'], {'index_disposition': row['official_disposition'], 'index_final_disposition_date': row['final_disposition_date'], 'index_version': version, 'introduced_by': row['introduced_by']})
+            except IdentifierConflict as exc:
+                if row_errors is None:
+                    raise
+                row_errors.append({'url': row['url'], 'document_number': row['document_number'], 'source_version': version, 'passage_id': pid, 'error': str(exc)})
+                continue
             store.fact('matter', mid, 'index_disposition', row['official_disposition'], pid)
             store.upsert('documents', id=stable_id('document', row['url']), matter_id=mid, source_url=row['url'], kind=row['document_type'], data={'source_version': version, 'official_number': row['document_number'], 'index_only': True})
         else:
@@ -178,6 +184,7 @@ def ingest_index_page(store, data, url, kind):
 
 def scan(store, fetcher, source, max_pages=4, start_url=None):
     url, pages, count, expected, errors = start_url or source['url'], 0, 0, None, []
+    row_errors = []
     run_id = stable_id('scan', source['id'], stamp())
     next_url = url
     while next_url and pages < max_pages:
@@ -185,8 +192,8 @@ def scan(store, fetcher, source, max_pages=4, start_url=None):
         try:
             data, meta = fetcher.get(current, 'html')
             if meta.get('status') == 'stale_cache':
-                raise RuntimeError('Live request failed; stale cache is not a successful scan')
-            rows, page, _ = ingest_index_page(store, data, current, source['type'])
+                raise RuntimeError('Live request failed; stale cache is not a successful scan: ' + meta.get('error', 'unknown fetch error'))
+            rows, page, _ = ingest_index_page(store, data, current, source['type'], row_errors)
             pages += 1
             count += len(rows)
             if expected is None:
@@ -196,10 +203,14 @@ def scan(store, fetcher, source, max_pages=4, start_url=None):
             store.failed_retrieval(source['pipeline'], current, exc)
             errors.append({'url': current, 'error': str(exc)[:500]})
             break
-    complete = not errors and next_url is None and (expected is None or count == expected or start_url is not None)
-    result = {'source_id': source['id'], 'pages': pages, 'records': count, 'expected_count': expected, 'pagination_complete': complete, 'next_url': next_url, 'errors': errors, 'scope': 'continuation' if start_url else 'from_first_page'}
+    if next_url is None and expected is not None and count != expected and start_url is None:
+        errors.append({'url': url, 'error': f'Inventory count mismatch: parsed {count}, expected {expected}'})
+    inventory_complete = not errors and next_url is None and (expected is None or count == expected or start_url is not None)
+    errors.extend(row_errors)
+    complete = inventory_complete and not row_errors
+    result = {'source_id': source['id'], 'pages': pages, 'records': count, 'normalized_records': count - len(row_errors), 'held_records': len(row_errors), 'expected_count': expected, 'pagination_complete': inventory_complete, 'next_url': next_url, 'errors': errors, 'scope': 'continuation' if start_url else 'from_first_page'}
     store.upsert('pipeline_runs', id=run_id, pipeline=source['pipeline'], started_at=stamp(), ingestion_status='partial' if errors else 'succeeded', parsing_status='partial' if errors or not complete else 'succeeded', reconciliation_status='pending', generation_status='not_requested', editorial_status='not_reviewed', data=result)
-    store.upsert('inventory_scans', id=run_id, pipeline_run_id=run_id, source_url=source['url'], complete=int(complete), pages=pages, expected_count=expected, parsed_count=count, data=result)
+    store.upsert('inventory_scans', id=run_id, pipeline_run_id=run_id, source_url=source['url'], complete=int(inventory_complete), pages=pages, expected_count=expected, parsed_count=count, data=result)
     store.commit()
     return result
 

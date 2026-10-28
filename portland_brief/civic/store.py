@@ -14,6 +14,10 @@ def stamp():
     return datetime.now(timezone.utc).isoformat()
 
 
+class IdentifierConflict(ValueError):
+    """Explicit identifiers disagree; retain evidence without merging identities."""
+
+
 class CivicStore:
     def __init__(self, path: Path):
         self.path = path
@@ -96,16 +100,20 @@ class CivicStore:
         namespace, value = ("official_document_number", official_number) if official_number else ("source_url", url)
         row = self.db.execute("SELECT matter_id FROM matter_identifiers WHERE jurisdiction_id=? AND namespace=? AND value=?", (jurisdiction_id, namespace, value)).fetchone()
         mid = row[0] if row else stable_id("matter", jurisdiction_id, namespace, value)
+        identifiers = [(namespace, value), ("source_url", url)]
+        # Check before writing: failed_retrieval commits the failure audit, so a
+        # conflict must not leave a new matter or overwrite an existing matter.
+        for ns, val in identifiers:
+            existing = self.db.execute("SELECT matter_id FROM matter_identifiers WHERE jurisdiction_id=? AND namespace=? AND value=?", (jurisdiction_id, ns, val)).fetchone()
+            if existing and existing[0] != mid:
+                raise IdentifierConflict(f"Conflicting official identifiers require manual reconciliation: {namespace}={value}; source_url={url}; existing_matter={existing[0]}; candidate_matter={mid}")
         old = self.db.execute("SELECT data FROM matters WHERE id=?", (mid,)).fetchone()
         merged = {**(json.loads(old[0]) if old else {}), **data}
         merged.setdefault("adoption_date", None)
         merged.setdefault("effective_date", None)
         merged.setdefault("implementation_status", "unknown")
         self.upsert("matters", id=mid, jurisdiction_id=jurisdiction_id, title=title, data=merged)
-        for ns, val in [(namespace, value), ("source_url", url)]:
-            existing = self.db.execute("SELECT matter_id FROM matter_identifiers WHERE jurisdiction_id=? AND namespace=? AND value=?", (jurisdiction_id, ns, val)).fetchone()
-            if existing and existing[0] != mid:
-                raise ValueError("Conflicting official identifiers require manual reconciliation")
+        for ns, val in identifiers:
             self.db.execute("INSERT OR IGNORE INTO matter_identifiers VALUES(?,?,?,?)", (jurisdiction_id, ns, val, mid))
         return mid
 

@@ -147,7 +147,7 @@ def main(argv=None):
                             try:
                                 data, meta = fetcher.get(source['url'], 'html')
                                 if meta.get('status') == 'stale_cache':
-                                    raise RuntimeError('Live roster fetch failed')
+                                    raise RuntimeError('Live roster fetch failed: ' + meta.get('error', 'unknown fetch error'))
                                 result.append({'source_id': source['id'], **ingest_rosters(store, data, source['url'], datetime.now(ZoneInfo('America/Los_Angeles')).date().isoformat())})
                             except Exception as exc:
                                 store.failed_retrieval('meetings', source['url'], exc)
@@ -238,6 +238,10 @@ def main(argv=None):
                     target.close()
                     result = {'backup': str(args.out), 'source_artifacts': str(database.parent / 'source-versions'), 'note': 'Back up source-versions and capture directories with the database.'}
         print(json.dumps(result, indent=2, ensure_ascii=False))
+        if args.command == 'discover' and any(r.get('error') or r.get('errors') for r in result):
+            # A deliberate page budget is partial coverage, not an outage.
+            # Actual fetch/parse failures must reach the scheduler's retry logic.
+            return 1
         if args.command == 'developments' and result['errors']:
             return 1
         if args.command == 'notices' and (not result['complete'] or not args.no_attachments and not result['attachment_processing_complete']):

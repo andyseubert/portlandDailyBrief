@@ -1,4 +1,16 @@
-# Implementation status — October 10, 2026 (America/Los_Angeles)
+# Implementation status — October 28, 2026 (America/Los_Angeles)
+
+## Cache concurrency and meeting failure reporting — October 28
+
+Resumed from the operational handoff. The shared HTTP cache now locks each URL across processes, writes unique temporary files and verifies bytes against metadata before reuse. Interrupted pairs trigger unconditional refetching; cache-write failures and outages retain the prior verified fallback's hash/freshness. Underlying network/cache error details remain visible. Historical errors do not prove their own root cause retroactively.
+
+Meeting discovery now exits nonzero for fetch/parse/identifier failures and terminal count mismatches, while deliberate pagination limits remain successful bounded scans. These codes enter existing scheduler retries; an executing tick returns failure if a child fails without cancelling other jobs. Matter identifiers are checked before writes. Conflicted document-index rows retain passage evidence and error details while other rows/pages proceed; pagination completeness, normalized rows and held rows remain separate.
+
+Live official refresh returned calendar 36/36; five institutions; active documents 42/42 with 41 normalized and one held; completed documents 100/4,136 and votes 96/16,074 within four-page budgets; county listing 1,551 entries with no independent expected total. The reused [Committee Chair updates URL](https://www.portland.gov/council/documents/presentation/committee-chair-updates) now identifies document 2026-388, while prior stored official evidence links it to 2026-373. Distinct identities remain held for reconciliation; all-source discovery correctly exited 1. An initial sandboxed DNS failure was retained as a failed attempt, followed by the approved outside-sandbox live checks; it does not establish an unattended runner outage.
+
+**139 tests pass**, including sixteen new regression cases for concurrent processes, interrupted cache replacements, stale/304 behavior, actual CLI-to-scheduler retry propagation, inventory limits/counts and held identifiers without partial matter writes. Existing development/daily/archive tests pass. Twenty dated briefs now exist through October 28 (`2b13b47`); no edition was regenerated, model invoked, human approval recorded or UI changed during this increment. No new browser validation is claimed. See [current handoff](handoff.md) for exact scopes, private evidence locations and next steps: reused-URL reconciliation, filings aggregate-health audit, overlapping-news triage and then development evidence/history work.
+
+## Historical October 10 implementation baseline
 
 Plan 1 is working locally and tested. Andy authorized daily local execution and repository archiving on October 10. A user LaunchAgent targets 7 a.m. America/Los_Angeles and catches up on wake/login. [Daily review drafts](../briefings.md) are shared in GitHub using dated `posts/` files, complete archive indexes and Git revision history. No website is deployed and no civic report is published. Plan 2 remains an evidence-first civic/neighborhood increment, not comprehensive reporting.
 

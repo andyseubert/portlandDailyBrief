@@ -131,7 +131,9 @@ def main(argv=None):
     if args.command == 'tick':
         if args.scheduled and not definitions(root)[0]['schedule'].get('enabled'):
             print(json.dumps({'executed': False, 'paused': True})); return 0
-        print(json.dumps(tick(root, args.run), indent=2)); return 0
+        result = tick(root, args.run)
+        print(json.dumps(result, indent=2))
+        return int(any(job['exit_code'] for job in result.get('results', [])))
     if not 1 <= args.poll_seconds <= 60:
         p.error('Poll interval must be 1–60 seconds')
     try:
