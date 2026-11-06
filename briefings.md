@@ -2,6 +2,7 @@
 
 AI-assisted review drafts; editorial approval pending. Historical forecasts describe the time checked. Corrections and earlier versions remain in Git history.
 
+- [2026-11-06](posts/2026-11-06.md) · [HTML](posts/2026-11-06.html)
 - [2026-11-05](posts/2026-11-05.md) · [HTML](posts/2026-11-05.html)
 - [2026-11-04](posts/2026-11-04.md) · [HTML](posts/2026-11-04.html)
 - [2026-11-03](posts/2026-11-03.md) · [HTML](posts/2026-11-03.html)
